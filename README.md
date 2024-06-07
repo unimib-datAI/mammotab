@@ -1,7 +1,7 @@
 # Create Dataset
 
 ## Download wikidumps
-E.g. from [here](https://dumps.wikimedia.org/enwiki/20220520/). We suggest to download the dumps on multiple bz2 streams as it will be easy to process all the pages in parallel with reduced memory requirements (e.g. `enwiki-20220520-pages-articles-multistream1.xml-p1p41242.bz2`).
+E.g. from [here](https://dumps.wikimedia.org/enwiki/20240220/). We suggest to download the dumps on multiple bz2 streams as it will be easy to process all the pages in parallel with reduced memory requirements (e.g. `enwiki-20220520-pages-articles-multistream1.xml-p1p41242.bz2`).
 Once downloaded you should see something similar:
 ```
 > ls enwiki-*

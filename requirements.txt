@@ -1,0 +1,7 @@
+numpy
+unidecode
+wikitextparser
+tqdm
+beautifulsoup4
+requests
+scipy
