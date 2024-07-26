@@ -35,7 +35,6 @@ os.makedirs(table_output_path, exist_ok=True)
 os.makedirs(gt_output_path, exist_ok=True)
 os.makedirs(target_output_path, exist_ok=True)
 
-# In[ ]:
 
 min_links_number = 3
 
@@ -99,7 +98,7 @@ for i in tqdm(diz_overall):
                 col_types += sum(1 for col in col_types_mat if col)
                 col_types_perfect_n += sum(1 for col in col_types_perfect_mat if col)
 
-                # all_entities = all_entities.union(set([cell for row in entity_mat for cell in row if cell.startswith('Q')]))
+                all_entities = all_entities.union(set([cell for row in entity_mat for cell in row if cell.startswith('Q')]))
 
 
                 tables_to_keep.append(tabcode)
@@ -145,9 +144,6 @@ for i in tqdm(diz_overall):
                     CEA.append(cea_line)
 
 
-# In[ ]:
-
-
 CTA = []
 
 print('4/4 CTA')
@@ -163,9 +159,6 @@ for i in tqdm(diz_overall):
                 cta_type = 'http://www.wikidata.org/entity/' + cta_type               
             cta_line = [tabcode,i, cta_type]
             CTA.append(cta_line)
-
-
-# In[ ]:
 
 # gt
 

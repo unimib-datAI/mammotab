@@ -25,7 +25,7 @@ import os
 
 import numpy as np
 import sys
-
+from utils import clean_links
 # -
 
 source_folder = sys.argv[1]
@@ -38,13 +38,6 @@ all_diz = []
 
 kept = 0
 total = 0
-
-def clean_links(link):
-    if '#' in link:
-        # remove links that refer to a page section
-        return ''
-    else:
-        return link
     
 clean_links_v = np.vectorize(clean_links)
 
@@ -58,7 +51,6 @@ for f_name in tqdm(os.listdir(os.path.join(source_folder, folder_name))):
 
     for tabcode, tab in diz['tables'].items():
         text_mat = np.array(tab['text'])
-        #text_mat = clean_cell_v(text_mat) # TODO TOGLIERE
         header_mat = np.array(tab['header'])
         link_mat = np.array(tab['link'])
         cells_mat = np.array(tab['cells'])
@@ -71,15 +63,26 @@ for f_name in tqdm(os.listdir(os.path.join(source_folder, folder_name))):
                     or 'WIKI_PROJ_PAGE' in col:
                 col_to_remove.add(col_id)
             else:
-                # all empty string or -
-                if all(map(lambda x: x in set(['', ' ', "-"]), col[len(header_mat):])):
+                current_col = col[len(header_mat):]
+                # CO1 RULE remove all empty string or -
+                if all(map(lambda x: x in set(['', ' ', "-"]), current_col)):
                     col_to_remove.add(col_id)
-                # all none
-                elif all(map(lambda x: 'none' in x.lower(), col[len(header_mat):])):
+                # CO2 RULE remove columns with only one repeated value
+                elif len(set(current_col)) == 1:
                     col_to_remove.add(col_id)
-                # all wikidata Q ids
-                elif all(map(lambda x: x.startswith('Q') and x[1:].isnumeric(), col[len(header_mat):])):
+                # CO3 RULE all wikidata Q ids
+                elif all(map(lambda x: x.startswith('Q') and x[1:].isnumeric(), current_col)):
                     col_to_remove.add(col_id)
+                # CO4 RULE remove first word when repeated in the column
+                #TODO CONTROLLARE E RIVEDERE
+                first = False
+                for c in current_col:
+                    if(first == False):
+                        first = c.split(' ')[0]
+                    else:
+                        if c.split(' ')[0] == first:
+                            c = c.replace(first, '', 1)
+                            break
 
         col_to_keep = set(range(text_mat.shape[1])) - col_to_remove
         col_to_keep = list(col_to_keep)
@@ -94,7 +97,14 @@ for f_name in tqdm(os.listdir(os.path.join(source_folder, folder_name))):
         # by row
         row_to_remove = set()
         for row_id, row in enumerate(text_mat):
+            # TR1 RULE remove all empty string or -
             if all(map(lambda x: x in set(['', ' ', "-"]), row)):
+                row_to_remove.add(row_id)
+            # TR2 RULE remove columns with only one repeated value
+            elif len(set(col[len(row):])) == 1:
+                row_to_remove.add(row_id)
+            # TR3 RULE remove rows where total appears at least twice
+            elif list(map(lambda x: 'total' in x.lower(), row)).count(True) >= 2:
                 row_to_remove.add(row_id)
             elif all(map(lambda x: 'none' in x.lower(), row)):
                 row_to_remove.add(row_id)

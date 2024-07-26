@@ -43,13 +43,6 @@ with gzip.open('ontology_all.gz', 'rt') as fd:
 print()
 print('errors', errors, 'total', total)
 
-# %%
-def depth(a):
-    if a not in ontology:
-        return 1
-    else:
-        return 1 + min(depth(superclass) for superclass in ontology[a])
-# %%
 def get_super(a):
     superclasses = set()
     processed = set()
@@ -68,29 +61,14 @@ def get_super(a):
             remaining = superclasses - processed
             depth += 1
     return superclasses, depth
-# %%
+
 ontology_complete = {}
 depth = {}
 for k in tqdm(ontology):
     ontology_complete[k], depth[k] = get_super(k)
 
-# %%
 with open('ontology_complete.pickle', 'wb') as fd:
     pickle.dump(ontology_complete, fd)
+#number of "subclass of" for each class in the ontology
 with open('depth.pickle', 'wb') as fd:
     pickle.dump(depth, fd)
-# %%
-def is_subclass(a, b):
-    # descending order
-    if a == b:
-        return 0
-    superclasses_a = ontology_complete.get(a)
-    if superclasses_a and b in superclasses_a:
-        # b is ancestor of a. b > a
-        return 1
-    superclasses_b = ontology_complete.get(b)
-    if superclasses_b and a in superclasses_b:
-        # a is ancestor of b. a > b
-        return -1
-    # their are not in a subclass relationship: reason on depth
-    return depth[a] - depth[b]
