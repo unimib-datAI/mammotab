@@ -42,6 +42,12 @@ class TokenTagEnum(Enum):
     SYMBOL = "symbol"
     ALIEN = "alien"
 
+    def __str__(self):
+        return str(self.value)
+
+    def __repr__(self):
+        return str(self)
+
 
 class Token:
     def __init__(self, value: str, tag: TokenTagEnum):
@@ -102,6 +108,8 @@ class Tokenizer:
         ]
 
     def GetType(self, text):
+        if(len(text) == 0):
+            return ''
         tokens = self.tokenize(text)
         return self._most_frequent_tag(tokens)
 
@@ -113,7 +121,7 @@ class Tokenizer:
         tag_counts = Counter(tags)
         most_common_tag = tag_counts.most_common(1)[0][0]
     
-        return TokenTagEnum[most_common_tag]
+        return most_common_tag
 
     def _tokenize_recursive(self, text, regexes):
         sentence = text.strip()
