@@ -13,7 +13,6 @@ from bs4 import BeautifulSoup, SoupStrainer
 import wikitextparser as wtp
 from tqdm import tqdm
 from utilities.utils import clean_cell, keygen, normalize_links
-from utilities.tokenizer import Tokenizer
 import html
 
 # Max number of rows parsed in a table
@@ -35,12 +34,12 @@ def breakcycle(_header_cells):
     return False
 #open the bz2 input file
 
-Tokenizer = Tokenizer()
-
 with bz2.open(file_name, 'rb') as f:
     text = f.read()
 
 print("1. DONE - File read")
+# apply clean_cell elementwise
+clean_cell_v = np.vectorize(clean_cell)
 
 #parsing using <page>...<\page> tags
 parse_only = SoupStrainer('page')                                         
@@ -90,8 +89,7 @@ for page in tqdm(soup):
                 #initializing table element, caption & header
                 tab = {'caption':clean_cell(table.caption),              
                          'header': [],
-                         'cells': [],
-                         'cell_types': []}
+                         'cells': []}
 
                 #line_number is an index allowing to check the header existance
                 if(len(data)>MAXLINES):
@@ -99,7 +97,7 @@ for page in tqdm(soup):
                     break
                 for line_number, line in enumerate(data):  
                     tab_line = []
-                    cell_type = []
+                    
                     if len(line)>MAXCOLUMNS:
                         print("Table too wide, skipping")
                         break
@@ -120,15 +118,12 @@ for page in tqdm(soup):
                             header_x += 1
                     for indx, cell in enumerate(line):
                         #convert to string and remove \n
-                        cell_str = str(cell).replace('\n','') 
-                        
+                        cell_str = str(cell).replace('\n','')            
                         #find link
                         #link_mat = re.search("(?<=\[\[)(.*?)(?=\]\])", cell_str)
                         cell_parsed = wtp.parse(cell_str)
                         links_wtp = cell_parsed.wikilinks
 
-                        celltype = Tokenizer.GetType(cell_str)
-                        cell_type.append(celltype)
                         #CRITERION:
                         #-- if cell is linked
                         #-- cell starts and ends w/ square brackets
@@ -140,14 +135,13 @@ for page in tqdm(soup):
                         if len(links_wtp) == 1 and\
                             len(links_wtp[0].plain_text()) == len(cell_parsed.plain_text()):
                             normalized = normalize_links(links_wtp[0].target)
-                            cell_str = clean_cell(cell)
                             tab_line.append(cell_str)
                             tab_line.append(normalized)
 
                         else:
                             tab_line.append(cell_str)
                             tab_line.append('')
-                    tab['cell_types'].append(cell_type)
+
                     tab['cells'].append(tab_line)
                 tab['cells'] = np.matrix(tab['cells'])
 
@@ -172,6 +166,8 @@ for page in tqdm(soup):
                 if current_max >= 3:                                     
                     #the target array is the "most linked" among columns
                     targ_arr = np.argwhere(link_sum == current_max).reshape(-1,)
+
+                    text_mat = clean_cell_v(text_mat)
 
                     #conversion to list
                     tab['link'] = link_mat.tolist()

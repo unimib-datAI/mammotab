@@ -119,9 +119,13 @@ class Tokenizer:
     def _most_frequent_tag(self,tokens):
         tags = [token.tag for token in tokens]
         tag_counts = Counter(tags)
-        most_common_tag = tag_counts.most_common(1)[0][0]
+        try:
+            most_common_tag = tag_counts.most_common(1)[0][0]
+        except IndexError:
+            print("tokens: ",tokens)
+            most_common_tag = ''
     
-        return most_common_tag
+        return str(most_common_tag)
 
     def _tokenize_recursive(self, text, regexes):
         sentence = text.strip()
