@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # +
-from utils import clean_cell, keygen, normalize_links
+from utilities.utils import clean_cell, keygen, normalize_links
 import bz2
 import gzip
 import json
@@ -12,7 +12,7 @@ import numpy as np
 from bs4 import BeautifulSoup, SoupStrainer
 import wikitextparser as wtp
 from tqdm import tqdm
-from utils import clean_cell, keygen, normalize_links
+from utilities.utils import clean_cell, keygen, normalize_links
 import html
 
 # Max number of rows parsed in a table

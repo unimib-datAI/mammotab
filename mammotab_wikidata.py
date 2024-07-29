@@ -21,7 +21,7 @@ import gzip
 import json
 import pickle
 import re
-from utils_wd import call_lamapi, handle_types
+from utilities.utils_wd import call_lamapi, handle_types
 
 with open('all_titles.pickle', 'rb') as fd:
     all_titles = pickle.load(fd)

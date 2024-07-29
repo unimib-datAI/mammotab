@@ -25,7 +25,7 @@ import os
 
 import numpy as np
 import sys
-from utils import clean_links
+from utilities.utils import clean_links
 # -
 
 source_folder = sys.argv[1]

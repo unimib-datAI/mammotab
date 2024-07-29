@@ -4,7 +4,7 @@
 from bs4 import BeautifulSoup, SoupStrainer
 
 import re
-from utils import normalize_links
+from utilities.utils import normalize_links
 import html
 from tqdm import tqdm
 
