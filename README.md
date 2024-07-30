@@ -42,6 +42,8 @@ or as an alternative process the dumps in parallel setting `NPROC` in `parallel_
 bash parallel_v2.sh
 ```
 
+Note that there is a constant `ENABLE_EXTERNAL_CONTEXT` which allows to keep the WikiPedia external context coming from the dumps, it defaults to false due to the large size of the data which it generates.
+
 Once finished (it requires several hours even if executed in parallel) you should see a folder named `wiki_tables` containing, for each dump, several files named `diz_[wiki_id].jzon.gz` containing the information extracted from the dump for each wikipedia page, that contains at least one table.
 
 The output of this first phase is a json file for each dump containing some statistics like this:

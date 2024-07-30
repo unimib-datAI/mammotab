@@ -20,6 +20,7 @@ import html
 MAXLINES = 10000
 MAXCOLUMNS = 1000
 MAXHEADERS = 200
+ENABLE_EXTERNAL_CONTEXT = False
 #file_name = 'enwiki-20220720-pages-articles-multistream2.xml-p41243p151573.bz2'
 # call by using "python mammotab_v3.py filename.bz2"
 file_name = sys.argv[1]                                                    
@@ -88,11 +89,14 @@ for page in tqdm(soup):
                 data = table.data() #(span=False) 
 
                 #initializing table element, caption & header
-                tab = {'caption':clean_cell(table.caption),              
+                tab = {'caption':clean_cell(table.caption),   
                          'header': [],
                          'cells': [],
                          'cell_types': []}
-
+                if(ENABLE_EXTERNAL_CONTEXT): 
+                    tab['external_context'] = {}
+                    for sec in parsed.sections:
+                        tab['external_context'][sec.title] = sec.contents
                 #line_number is an index allowing to check the header existance
                 if(len(data)>MAXLINES):
                     print("Table too long, skipping lines after "+str(MAXLINES))
