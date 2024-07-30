@@ -12,7 +12,7 @@
 
 **CE6** remove text between brackets and manage the case (number)"text"
 
-**CE7** replace common html artifacts '\xa0' -> ' ' -- '&nbsp;' -> ' ' -- '&amp;' -> '&' -- '&ndash;' -> '-'
+**CE7** replace common html artifacts '\xa0' -> ' ' -- '\&nbsp;' -> ' ' -- '\&amp;' -> '&' -- '\&ndash;' -> '-'
 
 **CE8** remove extra parenthesis like '{{}}' '[[]]' '()' and "
 

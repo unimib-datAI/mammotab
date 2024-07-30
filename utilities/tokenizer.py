@@ -36,6 +36,7 @@ class TokenTagEnum(Enum):
     HASHTAG = "hash_tag"
     EMOJI = "emoji"
     TIME = "time"
+    DATE = "date"
     ORDINAL = "ordinal"
     CURRENCY = "currency"
     PUNCTUATION = "punctuation"
@@ -76,6 +77,7 @@ class Tokenizer:
     rgx_hash_tag_dv = r"(?i)#[\u0900-\u0963\u0970-\u097F][\u0900-\u0963\u0970-\u097F\u0966-\u096F0-9]*"
     rgx_emoji = r"[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u26FF]|[\u2700-\u27BF]"
     rgx_time = r"(?i)(?:\d|[01]\d|2[0-3]):?(?:[0-5][0-9])?\s?(?:[ap]\.?m\.?|hours|hrs)"
+    rgx_date = r"\d{1,2}\/\d{1,2}\/\d{2,4}"
     rgx_ordinal_l1 = r"1\dth|[04-9]th|1st|2nd|3rd|[02-9]1st|[02-9]2nd|[02-9]3rd|[02-9][04-9]th|\d+\d[04-9]th|\d+\d1st|\d+\d2nd|\d+\d3rd"
     rgx_currency = r"[₿₽₹₨$£¥€₩]"
     rgx_punctuation = r"[’'‘’`“”\"\[\]\(\){}…,\.!;\?\-:\u0964\u0965]"
@@ -97,6 +99,7 @@ class Tokenizer:
             (Tokenizer.rgx_hash_tag_dv, TokenTagEnum.HASHTAG),
             (Tokenizer.rgx_emoji, TokenTagEnum.EMOJI),
             (Tokenizer.rgx_time, TokenTagEnum.TIME),
+            (Tokenizer.rgx_date, TokenTagEnum.DATE),
             (Tokenizer.rgx_ordinal_l1, TokenTagEnum.ORDINAL),
             (Tokenizer.rgx_number_l1, TokenTagEnum.NUMBER),
             (Tokenizer.rgx_number_dv, TokenTagEnum.NUMBER),
@@ -111,10 +114,23 @@ class Tokenizer:
         if(len(text) == 0):
             return ''
         tokens = self.tokenize(text)
-        return self._most_frequent_tag(tokens)
+        return self._classify_cell(tokens)
 
     def tokenize(self, text):
         return self._tokenize_recursive(text, self.regexes)
+    
+    def _classify_cell(self, tokens):
+        tags = [token.tag for token in tokens]
+        tag_counts = dict(Counter(tags))
+        k = tag_counts.keys()
+        if (TokenTagEnum.NUMBER in k or TokenTagEnum.ORDINAL in k or TokenTagEnum.CURRENCY in k) and TokenTagEnum.WORD not in k:
+            return 'NUMBER'
+        symbolcount = tag_counts.get(TokenTagEnum.SYMBOL,0)+tag_counts.get(TokenTagEnum.PUNCTUATION,0)+tag_counts.get(TokenTagEnum.EMOJI,0)
+        if symbolcount == len(tags):
+            return 'SYMBOL'
+        if TokenTagEnum.TIME in k or TokenTagEnum.DATE in k:
+            return 'DATE'
+        return 'STRING'
     
     def _most_frequent_tag(self,tokens):
         tags = [token.tag for token in tokens]
