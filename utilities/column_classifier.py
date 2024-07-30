@@ -1,9 +1,9 @@
 import collections
 import re
 import string
-
+import nltk
 from nltk.corpus import stopwords
-
+nltk.download('stopwords')
 
 def remove_punctuations(s, punctuation=string.punctuation):
     """
@@ -143,7 +143,7 @@ class ColumnClassifier:
         rows_count = sum([ freq for freq in col_freqs.values() ])
         lit_count = self._accumulate_freqs(
             col_freqs,
-            lambda col_type: col_type != "STRING"
+            lambda col_type: col_type != "STRING" and col_type != "word"
         )
         max_type = max(col_freqs, key=col_freqs.get)
 
@@ -154,34 +154,3 @@ class ColumnClassifier:
             lit_type = "STRING"
 
         return lit_type
-
-class ColumnClassifierTargets(ColumnClassifier):
-    def __init__(self, cols_data, cols, targets):
-        super().__init__(cols_data, cols)
-        
-        self._targets = targets # Specific table targets
-
-    def get_columns_tags(self):
-        tags = {}
-        for col_idx, item in enumerate(self._cols_type.items()):
-            col_name, col = item
-            lit_type = self._get_lit_type(self._cols_data[col_name], col)
-
-            if col_idx not in self._targets:
-                if lit_type is None:
-                    lit_type == "STRING"
-
-                tags[col_name] = {
-                    "tags": {
-                        "col_type": "LIT",
-                        "lit_type": lit_type
-                    }
-                }
-            else:
-                tags[col_name] = {
-                    "tags": {
-                        "col_type": "NE",
-                    }
-                }
-
-        return tags

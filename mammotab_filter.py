@@ -17,12 +17,12 @@
 from email import header
 import numpy as np
 from tqdm import tqdm
-
+from utilities.column_classifier import ColumnClassifier
 import gzip, json
 
 import sys
 import os
-
+from collections import Counter
 import numpy as np
 import sys
 from utilities.utils import clean_links
@@ -54,7 +54,10 @@ for f_name in tqdm(os.listdir(os.path.join(source_folder, folder_name))):
         header_mat = np.array(tab['header'])
         link_mat = np.array(tab['link'])
         cells_mat = np.array(tab['cells'])
-
+        cell_types = np.array(tab['cell_types'])
+        tab['cell_types_dict'] = {}
+        tab['col_by_row'] = {}
+        tab['tags'] = {}
         # by col
         col_to_remove = set()
         for col_id, col in enumerate(text_mat.T):
@@ -63,7 +66,15 @@ for f_name in tqdm(os.listdir(os.path.join(source_folder, folder_name))):
                     or 'WIKI_PROJ_PAGE' in col:
                 col_to_remove.add(col_id)
             else:
+                current_cell_types_col = cell_types[len(header_mat):, col_id]
+                frequency_dict = dict(Counter(current_cell_types_col))
+                frequency_dict = {str(key): value for key, value in frequency_dict.items()}
                 current_col = col[len(header_mat):]
+                if(current_col.size == 0):
+                    col_to_remove.add(col_id)
+                    continue
+                tab['cell_types_dict'][col_id] = frequency_dict
+                tab['col_by_row'][col_id] = current_col.tolist()
                 # CO1 RULE remove all empty string or -
                 if all(map(lambda x: x in set(['', ' ', "-"]), current_col)):
                     col_to_remove.add(col_id)
@@ -135,6 +146,9 @@ for f_name in tqdm(os.listdir(os.path.join(source_folder, folder_name))):
         tab['header'] = header_mat.tolist()
         tab['link'] = link_mat.tolist()
         tab['cells'] = cells_mat.tolist()
+
+        cfier = ColumnClassifier(tab['col_by_row'], tab['cell_types_dict'])
+        tab['tags'] = cfier.get_columns_tags() 
 
         # if table is not empty
         if text_mat.size > 0:
