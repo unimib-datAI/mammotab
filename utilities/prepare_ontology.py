@@ -4,17 +4,7 @@ import functools
 import pickle
 import sys
 from tqdm import tqdm
-# %%
-def get_qid(uri):
-    uri = uri.strip()
-    uri = uri.replace('<','').replace('>','')
-    uri = uri.split('/')[-1]
-    uri = uri[1:]
-    if not uri.isnumeric():
-        return None
-    else:
-        uri = int(uri)
-        return uri
+from utils_wd import get_qid
 # %%
 ontology = {} # X sublass_of Y --> x: y
 # %%
