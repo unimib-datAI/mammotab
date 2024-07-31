@@ -107,6 +107,10 @@ i=0
 filtered_types = set()
 found_perfect_types = 0
 tot_cols_with_types = 0
+count_with_header = 0
+count_with_caption = 0
+count_single_domain = 0
+count_multi_domain = 0
 
 for f_name in tqdm(os.listdir(folder_name)):
     if 'diz_' in f_name:
@@ -192,10 +196,12 @@ for f_name in tqdm(os.listdir(folder_name)):
 
                     if(len(diz['tables'][tab]['header']) > 0):
                         diz['tables'][tab]['tags']['header'] = True
+                        count_with_header += 1
                     else:
                         diz['tables'][tab]['tags']['header'] = False   
                     if(diz['tables'][tab]['caption']!=None):
                         diz['tables'][tab]['tags']['caption'] = True
+                        count_with_caption += 1
                     else:
                         diz['tables'][tab]['tags']['caption'] = False
 
@@ -247,8 +253,10 @@ for f_name in tqdm(os.listdir(folder_name)):
                 perfectCount = len([t for t in diz['tables'][tab]['col_type_perfect'] if t])
                 if(perfectCount <= 2):
                     diz['tables'][tab]['single_domain'] = True
+                    count_single_domain += 1
                 else:
                     diz['tables'][tab]['single_domain'] = False
+                    count_multi_domain += 1
                 found_perfect_types += perfectCount
                 tot_cols_with_types += len([t for t in diz['tables'][tab]['col_types'] if t])
 
@@ -267,7 +275,11 @@ diz_info = {'tot_cells': tot_cells,
             'types_not_found': types_not_found,
             'filtered_types': len(filtered_types),
             'found_perfect_types': found_perfect_types,
-            'tot_cols': tot_cols_with_types
+            'tot_cols': tot_cols_with_types,
+            'count_with_header': count_with_header,
+            'count_with_caption': count_with_caption,
+            'count_single_domain': count_single_domain,
+            'count_multi_domain': count_multi_domain,
            }
 
 #create folder
