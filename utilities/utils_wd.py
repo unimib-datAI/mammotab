@@ -36,9 +36,10 @@ def call_lamapi(list_of, ent_typ): #call LamAPI to get entities, types or litera
 
     payload = {}
     payload['json'] = list_of
-    res = requests.post(os.environ.get('LAMAPI_ROOT') + lam + '?token={}'.format(os.environ.get('LAMAPI_TOKEN')),
+    uri = os.environ.get('LAMAPI_ROOT') + lam + '?token={}'.format(os.environ.get('LAMAPI_TOKEN'))
+    res = requests.post(uri,
                         json=payload)
-
+    #print(uri)
     diz_temp = res.json()
 
     if ent_typ == 'entities':

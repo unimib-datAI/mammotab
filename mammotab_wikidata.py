@@ -121,7 +121,7 @@ for f_name in tqdm(os.listdir(folder_name)):
                 diz['tables'][tab]['entity'] = []
                 diz['tables'][tab]['types'] = []
                 diz['tables'][tab]['col_types'] = []
-
+                table_tags = diz['tables'][tab]['tags']
                 row_to_remove = set()
 
                 for row_id, line_link in enumerate(table_link):
@@ -169,6 +169,7 @@ for f_name in tqdm(os.listdir(folder_name)):
                                     # check if link not present in wikipedia -> NIL, red wiki link
                                     if cell_link not in all_titles:
                                         entities_not_found+=1
+                                        table_tags[col_id]['nil_present'] = True
                                         entities_line.append('NIL')
                                     else:
                                         entities_not_found+=1
@@ -186,6 +187,15 @@ for f_name in tqdm(os.listdir(folder_name)):
 
                     diz['tables'][tab]['entity'].append(entities_line)
                     diz['tables'][tab]['types'].append(types_line)
+
+                    if(len(diz['tables'][tab]['header']) > 0):
+                        diz['tables'][tab]['tags']['header'] = True
+                    else:
+                        diz['tables'][tab]['tags']['header'] = False   
+                    if(diz['tables'][tab]['caption']!=None):
+                        diz['tables'][tab]['tags']['caption'] = True
+                    else:
+                        diz['tables'][tab]['tags']['caption'] = False
 
                 # remove rows with wikidata item in clear text
                 text_mat = np.array(diz['tables'][tab]['text'])
@@ -232,7 +242,12 @@ for f_name in tqdm(os.listdir(folder_name)):
                     current_filtered = handle_types(diz['tables'][tab]['types']) 
                 filtered_types = filtered_types.union(current_filtered)
 
-                found_perfect_types += len([t for t in diz['tables'][tab]['col_type_perfect'] if t])
+                perfectCount = len([t for t in diz['tables'][tab]['col_type_perfect'] if t])
+                if(perfectCount <= 2):
+                    diz['tables'][tab]['single_domain'] = True
+                else:
+                    diz['tables'][tab]['single_domain'] = False
+                found_perfect_types += perfectCount
                 tot_cols_with_types += len([t for t in diz['tables'][tab]['col_types'] if t])
 
                 tables_to_keep.add(tab)

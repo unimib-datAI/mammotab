@@ -241,7 +241,7 @@ Required to sort the types from generic to specific:
 1. Download and filter subclass relationships from a wikidata dump, e.g.:
 
 ```bash
-sudo apt install bzip2   //or equivament for non debian based systems
+sudo apt install bzip2   #or equivament for non debian based systems
 
 wget https://zenodo.org/record/6643443/files/wikidata-20220521-truthy.nt.bz2
 bzcat wikidata-20220521-truthy.nt.bz2 | awk '$2 == "<http://www.wikidata.org/prop/direct/P279>" {print $0}'| gzip -c > ontology_all.gz
@@ -252,12 +252,19 @@ where `P279` is "subclass of".
 2. Run
 
 ```bash
+cd utilities
 python prepare_ontology.py
 ```
 
 Once finished you should have two pickle files:
 
+1. `ontology_complete.pickle` #dictionary of superclasses: superclasses[wikidata_class]
+
+2. `depth.pickle` #dictionary of depth (max depth from a top level wikidata class) : depth[wikidata_class]
+
+Move them to the main folder to proceed.
+
 ```bash
-ontology_complete.pickle # dictionary of superclasses: superclasses[wikidata_class]
-depth.pickle # dictionary of depth (max depth from a top level wikidata class) : depth[wikidata_class]
+mv *.pickle ..
+cd ..
 ```
