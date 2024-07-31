@@ -169,6 +169,8 @@ for f_name in tqdm(os.listdir(folder_name)):
                                     # check if link not present in wikipedia -> NIL, red wiki link
                                     if cell_link not in all_titles:
                                         entities_not_found+=1
+                                        if col_id not in table_tags:
+                                            table_tags[col_id] = {}
                                         table_tags[col_id]['nil_present'] = True
                                         entities_line.append('NIL')
                                     else:
