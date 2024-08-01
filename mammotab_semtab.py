@@ -7,11 +7,6 @@ import sys
 import csv
 from pprint import pprint
 
-#for i in range(10):
-#    print(diz_overall[i]['wiki_id'])
-#    for tab in diz_overall[i]['tables']:
-#        print(diz_overall[i]['tables'][tab])
-
 n_tables = 0
 cells = 0
 rows = 0
@@ -38,11 +33,7 @@ os.makedirs(target_output_path, exist_ok=True)
 
 min_links_number = 3
 
-
 CEA = []
-
-#skipped = 0
-
 diz_overall = {}
 i=0
 
@@ -72,7 +63,6 @@ for i in tqdm(diz_overall):
         ent_mat = np.array(table_ent)
 
         # remove tables without a column with at least three entity
-
         if ent_mat.size > 0 and len(ent_mat.shape) >= 2:
             ent_sum = np.array(np.sum(ent_mat != '', axis = 0))          #sum of links
             current_max = np.amax(ent_sum)
@@ -98,8 +88,8 @@ for i in tqdm(diz_overall):
                 col_types += sum(1 for col in col_types_mat if col)
                 col_types_perfect_n += sum(1 for col in col_types_perfect_mat if col)
 
-                all_entities = all_entities.union(set([cell for row in entity_mat for cell in row if cell.startswith('Q')]))
-
+                cells = set([cell for row in entity_mat for cell in row if cell.startswith('Q')])
+                all_entities = all_entities.union(cells)
 
                 tables_to_keep.append(tabcode)
 
@@ -124,7 +114,6 @@ for i in tqdm(diz_overall):
         head = ['col{}'.format(i) for i in range(ncol)]
         
         #table_text.insert(0, head)
-
         table_txt_anon_header = [head] + table_txt.tolist()
         #print(table_text)
 
@@ -137,7 +126,8 @@ for i in tqdm(diz_overall):
             # if there are links in the column
             if any(ent_col):
                 for row_indx, ent_cell in enumerate(ent_col):
-                    cea_entity = str(ent_cell) if ent_cell else 'UNKNOWN' # ent_cell if Q1234 or NIL, if empty string -> UNKNOWN
+                    # ent_cell if Q1234 or NIL, if empty string -> UNKNOWN
+                    cea_entity = str(ent_cell) if ent_cell else 'UNKNOWN' 
                     if cea_entity.startswith('Q'):
                         cea_entity = 'http://www.wikidata.org/entity/' + cea_entity
                     cea_line = [tabcode,row_indx,col_indx, cea_entity]
@@ -161,7 +151,6 @@ for i in tqdm(diz_overall):
             CTA.append(cta_line)
 
 # gt
-
 with open(os.path.join(gt_output_path, "CEA_mammotab_gt.csv"), "w", newline = '') as file:   
     write = csv.writer(file)
     write.writerows(CEA)
@@ -172,7 +161,6 @@ if CTA:
         write.writerows(CTA)
 
 # target
-
 with open(os.path.join(target_output_path, "CEA_mammotab_target.csv"), "w", newline = '') as file:   
     n_col_target = len(CEA[0]) - 1
 
