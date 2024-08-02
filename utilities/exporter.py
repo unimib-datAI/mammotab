@@ -41,7 +41,7 @@ def AddAcronyms(table):
 def AddAliases(table):
     necols = GetNeColumns(table)
     call_lamapi(table['entity'], 'aliases')
-    necells = Set()
+    necells = set()
     for row in table['text']:
         for i,cell in enumerate(row):
             if i in necols:

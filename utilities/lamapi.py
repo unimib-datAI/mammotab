@@ -31,7 +31,9 @@ def call_lamapi(list_of, ent_typ): #call LamAPI to get entities, types or litera
         res = requests.post(uri+'&kg=wikidata',json=payload)
 
         diz_temp = res.json()
-        diz_temp = diz_temp['wikidata']
+        # manage older version of LamAPI returning the additional 'wikidata' key
+        if 'wikidata' in diz_temp:
+            diz_temp = diz_temp['wikidata']
         source = 'types' #direct_types, types
 
         diz_new = {}
