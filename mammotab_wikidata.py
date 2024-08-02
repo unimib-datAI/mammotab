@@ -1,16 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-#DUE STEP:
-#1. si creano due dizionari
-#  .entità = {}
-#  .tipi = {}
-#2. si aggiungono due nuove tabelle (stile "link" = [[True,False],[False,False]]) utilizzando i diz creati in precedenza
-
-#NOTE:
-#.manca regex per i literals
-#.controllo generale non fatto
-
 from tqdm import tqdm
 
 import gzip, json
@@ -21,7 +11,9 @@ import gzip
 import json
 import pickle
 import re
-from utilities.utils_wd import call_lamapi, handle_types
+from utilities.utils_wd import handle_types
+from utilities.lamapi import call_lamapi
+from utilities.exporter import AddAcronyms,AddAliases,AddTypos,ApproximateNumbers
 
 with open('all_titles.pickle', 'rb') as fd:
     all_titles = pickle.load(fd)
@@ -31,6 +23,10 @@ origin_folder = sys.argv[1]
 destination_folder = sys.argv[3]
 #fol_name = 'enwiki-20220701-pages-articles-multistream1.xml-p1p41242.bz2'
 #fol_name = 'enwiki-20220720-pages-articles-multistream2.xml-p41243p151573.bz2'
+ADDACRONIMS = True
+ADDALIASES = False
+ADDTYPOS = True
+APPROXIMATENUMBERS = True
 
 folder_name = os.path.join(os.getcwd(),origin_folder, fol_name)
 
@@ -175,7 +171,7 @@ for f_name in tqdm(os.listdir(folder_name)):
                                         entities_not_found+=1
                                         if col_id not in table_tags:
                                             table_tags[col_id] = {}
-                                        table_tags[col_id]['nil_present'] = True
+                                        table_tags[str(col_id)]['nil_present'] = True
                                         entities_line.append('NIL')
                                     else:
                                         entities_not_found+=1
@@ -194,6 +190,14 @@ for f_name in tqdm(os.listdir(folder_name)):
                     diz['tables'][tab]['entity'].append(entities_line)
                     diz['tables'][tab]['types'].append(types_line)
 
+                    if ADDACRONIMS:
+                        diz['tables'][tab] = AddAcronyms(diz['tables'][tab])
+                    if ADDALIASES:
+                        diz['tables'][tab] = AddAliases(diz['tables'][tab])
+                    if ADDTYPOS:
+                        diz['tables'][tab] = AddTypos(diz['tables'][tab])
+                    if APPROXIMATENUMBERS:
+                        diz['tables'][tab] = ApproximateNumbers(diz['tables'][tab])
                     if(len(diz['tables'][tab]['header']) > 0):
                         diz['tables'][tab]['tags']['header'] = True
                         count_with_header += 1

@@ -1,7 +1,5 @@
 import pickle
-import requests
 import functools
-import os
 import numpy as np
 
 base_threshold = 0.6
@@ -35,51 +33,6 @@ def is_subclass(a, b):
         return -1
     # their are not in a subclass relationship: reason on depth
     return depth[a] - depth[b]
-
-def call_lamapi(list_of, ent_typ): #call LamAPI to get entities, types or literal types
-    if ent_typ == 'entities':
-        lam = 'entity/wikipedia-mapping'
-    elif ent_typ == 'types':
-        lam = 'entity/types'
-    elif ent_typ == 'literals':
-        lam = 'classify/literal-recognizer'
-    else:
-        return print('possible options: \n -entities \n -types \n -literals')
-
-    payload = {}
-    payload['json'] = list_of
-    uri = os.environ.get('LAMAPI_ROOT') + lam + '?token={}'.format(os.environ.get('LAMAPI_TOKEN'))
-    res = requests.post(uri,
-                        json=payload)
-    #print(uri)
-    diz_temp = res.json()
-
-    if ent_typ == 'entities':
-        source = 'wikidata' #wikipedia, curid, wikipedia_id
-        for el in diz_temp:
-            diz_temp[el] = diz_temp[el][source]
-        return diz_temp
-
-    if ent_typ == 'types':
-        res = requests.post(os.environ.get('LAMAPI_ROOT') + lam + '?token={}&kg=wikidata'.format(os.environ.get('LAMAPI_TOKEN')),
-                        json=payload)
-
-        diz_temp = res.json()
-        diz_temp = diz_temp['wikidata']
-        source = 'types' #direct_types, types
-
-        diz_new = {}
-
-        for key,value in diz_temp.items():
-            if value['types']:
-                diz_new[key] = value['types'] #[0] --> uncomment to select one type
-        return diz_new
-
-    if ent_typ == 'literals':
-        source = 'datatype' #classification, tag, xml_datatype
-        for el in diz_temp:
-            diz_temp[el] = diz_temp[el][source]
-        return diz_temp
     
 def dynamic_threshold(n, base_th=0.8):
     # return a threshold that varies with the number of rows
