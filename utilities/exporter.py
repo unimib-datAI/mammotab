@@ -1,4 +1,4 @@
-import random
+import random,json
 
 def add_random_typo(text):
     if not text:
@@ -10,9 +10,17 @@ def add_random_typo(text):
     return typo_text
 
 def AddAcronyms(table):
-
+    with open('acronym.json', 'r') as f:
+        acronym_dict = json.load(f)
+    necols = []
+    for i,col in enumerate(table['tags']):
+        if col['tags']['col_type'] == 'NE':
+            necols.append(i)
+    for row in table['text']:
+        for i,cell in enumerate(row):
+            if i in necols and cell in acronym_dict:
+                cell = acronym_dict[cell]
     return table
-
 
 def AddAliases(table):
     # TODO NEW LAMAPI ENDPOINT
