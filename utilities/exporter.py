@@ -15,7 +15,7 @@ def AddAcronyms(table):
 
 
 def AddAliases(table):
-
+    # TODO NEW LAMAPI ENDPOINT
     return table
 
 def AddTypos(table):

@@ -1,77 +1,38 @@
-__author__ = 'krishnateja'
 import urllib.request as request
 from bs4 import BeautifulSoup
-import string
-import re
+import re,json
 
-checker = True
 multipleAcronyms = False
 multipleAcroLines = False
 listOfAbbr = []
-alphabets = [' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-websiteFile = open("WikiWebsite.txt", "w")
-acronymsFile = open("AcronymsFile.csv", "w")
+alphabets = ['0-9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+acroFile = open("acronyms.json", "w")
 
+acrolist = {}
 for alphabet in alphabets:
-    if checker:
-        url = "https://en.wikipedia.org/wiki/List_of_acronyms"
-        checker = False
-        print(url)
-    else:
-        url = "https://en.wikipedia.org/wiki/List_of_acronyms:_" + alphabet
-        print(url)
+    url = "https://en.wikipedia.org/wiki/List_of_acronyms:_" + alphabet
+    print(url)
 
     html = request.urlopen(url).read()
     soup = BeautifulSoup(html)
 
-    for script in soup(["script", "style"]):
-        script.extract()  
-    text = soup.get_text()
+    content_div = soup.select_one('#mw-content-text > div:nth-of-type(1)')
 
-    # break into lines and remove leading and trailing space on each
-    lines = (line.strip() for line in text.splitlines())
-    # break multi-headlines into a line each
-    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-    # drop blank lines
-    text = '\n'.join(chunk for chunk in chunks if chunk)
-
-    websiteFile.write(text)
-
-delete_list = ["(a)", "(i)", "(p)", "(s)", "Article", "Talk", "Variants", "Views", "Read", "Edit-View history", "More", "Jargon", "Edit","Search-","Tools-","hide-","Contents-"]
-
-def is_ascii(s):
-    return all(ord(c) < 128 for c in s)
-
-with open('WikiWebsite.txt') as f:
-    content = f.readlines()
-    for line in f:
-        for word in delete_list:
-            line = line.replace(word, "")
-
-        if not is_ascii(line):
-            line = line.replace('–', '-')
-    for line in content:
-        if re.match("^[A-Za-z0-9]+\s-\s.*", line):
-            if multipleAcronyms:
-                multipleAcronyms = False
-                multipleAcroLines = False
-                severalAcronyms = ",".join(listOfAbbr)
-                acronymsFile.write(severalAcronyms+"\n")
-                listOfAbbr = []
-            acronymsFile.write(line)
-
-        elif re.match("[A-Za-z0-9,]{2,8}$", line):
-            if multipleAcronyms:
-                multipleAcronyms = False
-                multipleAcroLines = False
-                severalAcronyms = ",".join(listOfAbbr)
-                acronymsFile.write(severalAcronyms+"\n")
-                listOfAbbr = []
-            acronymsFile.write(line.strip("\n"))
-            acronymsFile.write('-')
-            multipleAcroLines = True
-            multipleAcronyms = True
-
-        elif multipleAcroLines:
-            listOfAbbr.append(line.strip("\n"))
-            multipleAcronyms = True
+    if content_div:
+        for li in content_div.find_all('li'):
+            text = li.get_text()
+            tarr = text.split(" – ")
+            if len(tarr) > 1:
+                tarr[1] = (re.sub(r"(.*?)\[(.*?)\]", r"\1", tarr[1]))
+                tarr[1] = (re.sub(r"(.*?)\((.*?)\)", r"\1", tarr[1])).strip().replace('  ',' ')
+                if tarr[1].find('"') != -1 and tarr[1].find(':') != -1:
+                    tarr[1] = tarr[1].split(":")[0]
+                tarr[1] = tarr[1].replace('"','')
+                tarr[1] = tarr[1].split(';')[0].strip()
+                tarr[1] = tarr[1].split('/')[0].strip()
+                tarr[1] = tarr[1].split('such as')[0].strip()
+                tarr[1] = tarr[1].replace('many, including','').replace(')','').replace('(','').strip()
+                tarr[0] = tarr[0].split('or')[0].strip()
+                print(tarr)
+                acrolist[tarr[1].lower()] = tarr[0]
+acroFile.write(json.dumps(acrolist))
