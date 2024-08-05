@@ -4,7 +4,7 @@ import functools
 import pickle
 import sys
 from tqdm import tqdm
-from utils_wd import get_qid
+from utils import get_qid
 # %%
 ontology = {} # X sublass_of Y --> x: y
 # %%

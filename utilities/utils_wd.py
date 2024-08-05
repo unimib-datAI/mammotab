@@ -7,17 +7,6 @@ with open('ontology_complete.pickle', 'rb') as fd:
     ontology_complete = pickle.load(fd)
 with open('depth.pickle', 'rb') as fd:
     depth = pickle.load(fd)
-
-def get_qid(uri):
-    uri = uri.strip()
-    uri = uri.replace('<','').replace('>','')
-    uri = uri.split('/')[-1]
-    uri = uri[1:]
-    if not uri.isnumeric():
-        return None
-    else:
-        uri = int(uri)
-        return uri
     
 def is_subclass(a, b):
     # descending order

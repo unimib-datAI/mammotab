@@ -1,6 +1,6 @@
 import gzip, json
 from collections import OrderedDict,Counter
-from utils_wd import get_qid
+from utils import get_qid
 
 ontology = Counter()
 errors = 0

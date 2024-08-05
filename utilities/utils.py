@@ -4,6 +4,17 @@ import pickle
 import wikitextparser as wtp
 from bs4 import BeautifulSoup
 
+def get_qid(uri):
+    uri = uri.strip()
+    uri = uri.replace('<','').replace('>','')
+    uri = uri.split('/')[-1]
+    uri = uri[1:]
+    if not uri.isnumeric():
+        return None
+    else:
+        uri = int(uri)
+        return uri
+    
 def normalize_links(text):
     text = text.strip().replace(' ', '_')
     try:
