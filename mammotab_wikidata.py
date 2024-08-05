@@ -24,7 +24,7 @@ destination_folder = sys.argv[3]
 #fol_name = 'enwiki-20220701-pages-articles-multistream1.xml-p1p41242.bz2'
 #fol_name = 'enwiki-20220720-pages-articles-multistream2.xml-p41243p151573.bz2'
 ADDACRONIMS = True
-ADDALIASES = False
+ADDALIASES = True
 ADDTYPOS = True
 APPROXIMATENUMBERS = True
 
@@ -190,14 +190,6 @@ for f_name in tqdm(os.listdir(folder_name)):
                     diz['tables'][tab]['entity'].append(entities_line)
                     diz['tables'][tab]['types'].append(types_line)
 
-                    if ADDACRONIMS:
-                        diz['tables'][tab] = AddAcronyms(diz['tables'][tab])
-                    if ADDALIASES:
-                        diz['tables'][tab] = AddAliases(diz['tables'][tab])
-                    if ADDTYPOS:
-                        diz['tables'][tab] = AddTypos(diz['tables'][tab])
-                    if APPROXIMATENUMBERS:
-                        diz['tables'][tab] = ApproximateNumbers(diz['tables'][tab])
                     if(len(diz['tables'][tab]['header']) > 0):
                         diz['tables'][tab]['tags']['header'] = True
                         count_with_header += 1
@@ -249,6 +241,16 @@ for f_name in tqdm(os.listdir(folder_name)):
                 diz['tables'][tab]['entity'] = entity_mat.tolist()
                 diz['tables'][tab]['types'] = types_mat.tolist()
 
+                if ADDACRONIMS:
+                    diz['tables'][tab] = AddAcronyms(diz['tables'][tab])
+                if ADDTYPOS:
+                    diz['tables'][tab] = AddTypos(diz['tables'][tab])
+                if APPROXIMATENUMBERS:
+                    diz['tables'][tab] = ApproximateNumbers(diz['tables'][tab])
+                if ADDALIASES:
+                    diz['tables'][tab] = AddAliases(diz['tables'][tab])
+
+                
                 #accept father types of an annotation 
                 diz['tables'][tab]['col_types'], diz['tables'][tab]['col_type_perfect'],\
                     current_filtered = handle_types(diz['tables'][tab]['types']) 

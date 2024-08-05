@@ -40,18 +40,21 @@ def AddAcronyms(table):
 
 def AddAliases(table):
     necols = GetNeColumns(table)
-    call_lamapi(table['entity'], 'aliases')
     necells = set()
-    for row in table['text']:
-        for i,cell in enumerate(row):
-            if i in necols:
-                necells.add(cell)
+    for row in table['entity']:
+        for col in necols:
+            col_index = int(col)
+            if row[col_index]!='':
+                necells.add(row[col_index])
     aliases = call_lamapi(list(necells), 'aliases')
-    for row in table['text']:
-        for i,cell in enumerate(row):
-            entity = table['entity'][i][row]
-            if i in necols and cell in aliases:
-                cell = random.choice(aliases[entity]["aliases"]["en"])
+    for col_index,col in enumerate(table['text']):
+        entity = table['entity'][col_index]
+        for cell_index,cell in enumerate(col):
+            entity_cell = entity[cell_index]
+            #if col_index in necols:
+            if entity_cell in aliases:
+                if "en" in aliases[entity_cell]["aliases"]:
+                    table['text'][col_index][cell_index] = random.choice(aliases[entity_cell]["aliases"]["en"])
     return table
 
 def AddTypos(table):

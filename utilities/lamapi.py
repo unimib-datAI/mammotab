@@ -24,7 +24,8 @@ def call_lamapi(list_of, ent_typ): #call LamAPI to get entities, types or litera
         res = requests.post(uri,json=payload)
         diz_temp = res.json()
         for el in diz_temp:
-            diz_temp[el] = diz_temp[el][source]
+            if source in diz_temp[el]:
+                diz_temp[el] = diz_temp[el][source]
         return diz_temp
 
     elif ent_typ == 'types':
