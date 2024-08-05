@@ -44,7 +44,7 @@ def AddAliases(table):
     for row in table['entity']:
         for col in necols:
             col_index = int(col)
-            if row[col_index]!='':
+            if col_index in row and row[col_index]!='':
                 necells.add(row[col_index])
     aliases = call_lamapi(list(necells), 'aliases')
     for col_index,col in enumerate(table['text']):
