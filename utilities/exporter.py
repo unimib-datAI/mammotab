@@ -38,6 +38,7 @@ def AddAcronyms(table):
             if i in necols and cell in acronym_dict:
                 cell = acronym_dict[cell]
                 acro += 1
+                print(cell,acro)
     return table,acro
 
 def AddAliases(table):
@@ -59,6 +60,7 @@ def AddAliases(table):
                 if "en" in aliases[entity_cell]["aliases"]:
                     table['text'][col_index][cell_index] = random.choice(aliases[entity_cell]["aliases"]["en"])
                     aliases_added += 1
+                    print(table['text'][col_index][cell_index],aliases_added)
     return table,aliases_added
 
 def AddTypos(table):
@@ -69,6 +71,7 @@ def AddTypos(table):
             if i in necols:
                 cell = add_random_typo(cell)
                 typos_added += 1
+                print(cell,typos_added)
     return table,typos_added
 
 def ApproximateNumbers(table):
@@ -79,5 +82,6 @@ def ApproximateNumbers(table):
             if i in litcols:
                 cell = str(float(cell) + random.randint(-1,1))
                 approx += 1
+                print(cell,approx)
     return table,approx
 

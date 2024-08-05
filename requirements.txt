@@ -6,6 +6,7 @@ idna==3.7
 joblib==1.4.2
 nltk==3.8.1
 numpy==2.0.1
+python-dotenv==1.0.1
 regex==2024.5.15
 requests==2.32.3
 scipy==1.14.0

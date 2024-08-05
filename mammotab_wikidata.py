@@ -10,8 +10,7 @@ import os
 import gzip
 import json
 import pickle
-import re
-from utilities.utils_wd import handle_types,IsGeneric
+from utilities.utils_wd import mammotab_wiki
 from utilities.lamapi import call_lamapi
 from utilities.exporter import AddAcronyms,AddAliases,AddTypos,ApproximateNumbers
 
@@ -23,17 +22,32 @@ origin_folder = sys.argv[1]
 destination_folder = sys.argv[3]
 #fol_name = 'enwiki-20220701-pages-articles-multistream1.xml-p1p41242.bz2'
 #fol_name = 'enwiki-20220720-pages-articles-multistream2.xml-p41243p151573.bz2'
-ADDACRONIMS = True
-ADDALIASES = True
-ADDTYPOS = True
-APPROXIMATENUMBERS = True
 
 folder_name = os.path.join(os.getcwd(),origin_folder, fol_name)
 
 #creating a list of possible linked entities
 
 diz_info = {'tot_link' : 0,
-            'tot_nolink' : 0}
+            'tot_nolink' : 0,
+            'tot_linked_cell': 0,
+        'entities_found': 0,
+        'entities_not_found': 0,
+        'types_found': 0,
+        'types_not_found': 0,
+        'tot_cells': 0,
+        'count_with_header': 0,
+        'count_with_caption': 0,
+        'acro_added': 0,
+        'typos_added': 0,
+        'approx_added': 0,
+        'alias_added': 0,
+        'generic_types': 0,
+        'specific_types': 0,
+        'filtered_types': 0,
+        'found_perfect_types': 0,
+        'tot_cols_with_types': 0,
+        'count_single_domain': 0,
+        'count_multi_domain': 0}
 
 entities_list = []
 entities_set = set()
@@ -61,6 +75,7 @@ for f_name in tqdm(os.listdir(folder_name)):
                                 #anche se non è linkata potrebbe avere un'entità, si prova lo stesso?
                         else:
                             diz_info['tot_nolink'] +=1
+        break
 
 
 #creating dictiory of entities and types based on wikidata
@@ -100,224 +115,20 @@ types_not_found = 0
 diz_overall = {}
 i=0
 
-filtered_types = set()
-found_perfect_types = 0
-tot_cols_with_types = 0
-count_with_header = 0
-count_with_caption = 0
-count_single_domain = 0
-count_multi_domain = 0
-
-acro_added = 0
-alias_added = 0
-typos_added = 0
-approx_added = 0
-
-generic_types = 0
-specific_types = 0
 
 for f_name in tqdm(os.listdir(folder_name)):
     if 'diz_' in f_name:
         with gzip.open(os.path.join(folder_name, f_name), 'rb') as f:
             diz = json.load(f)
-
-            tables_to_keep = set()
-
-            for tab in diz['tables']:
-                table_link = diz['tables'][tab]['link']
-                table_text = diz['tables'][tab]['text']
-                diz['tables'][tab]['entity'] = []
-                diz['tables'][tab]['types'] = []
-                diz['tables'][tab]['col_types'] = []
-                table_tags = diz['tables'][tab]['tags']
-                row_to_remove = set()
-
-                for row_id, line_link in enumerate(table_link):
-                    entities_line = []
-                    types_line = []
-                    for col_id, cell_link in enumerate(line_link):
-                        if cell_link:
-                            #print(cell_text,cell_link)
-                            tot_linked_cell+=1
-                            # a wikidata link
-                            if cell_link.startswith(':d:Q'):
-                                # wikidata
-                                cell_text = table_text[row_id][col_id]
-                                if re.search('Q[0-9]+', cell_text):
-                                    # remove row
-                                    row_to_remove.add(row_id)
-                                else:
-                                    entity = cell_link[3:]
-                                    entities_line.append(entity)
-                                    entities_found+=1
-
-                                    try:
-                                        types_line.append(types_diz[entity])
-                                        types_found+=1
-                                    except KeyError:
-                                        types_line.append([])
-                                        types_not_found+=1
-                            else:
-                                try:
-                                    entity = entities_diz[cell_link]
-                                    entities_line.append(entity)
-                                    entities_found+=1
-
-                                    try:
-                                        types_line.append(types_diz[entity])
-                                        types_found+=1
-                                    except KeyError:
-                                        types_line.append([])
-                                        types_not_found+=1
-
-
-                                except KeyError:
-                                    # if NIL
-                                    # not found with lamapi
-                                    # check if link not present in wikipedia -> NIL, red wiki link
-                                    if cell_link not in all_titles:
-                                        entities_not_found+=1
-                                        if col_id not in table_tags:
-                                            table_tags[col_id] = {}
-                                        table_tags[str(col_id)]['nil_present'] = True
-                                        entities_line.append('NIL')
-                                    else:
-                                        entities_not_found+=1
-                                        #entities not in dictionary --> (possible nil?)
-                                        entities_line.append('') 
-
-                                    types_not_found+=1
-                                    types_line.append([])
-
-                        else:
-                            entities_line.append('')
-                            types_line.append([])
-
-                        tot_cells+=1
-
-                    diz['tables'][tab]['entity'].append(entities_line)
-                    diz['tables'][tab]['types'].append(types_line)
-
-                    if(len(diz['tables'][tab]['header']) > 0):
-                        diz['tables'][tab]['tags']['header'] = True
-                        count_with_header += 1
-                    else:
-                        diz['tables'][tab]['tags']['header'] = False   
-                    if(diz['tables'][tab]['caption']!=None):
-                        diz['tables'][tab]['tags']['caption'] = True
-                        count_with_caption += 1
-                    else:
-                        diz['tables'][tab]['tags']['caption'] = False
-
-                # remove rows with wikidata item in clear text
-                text_mat = np.array(diz['tables'][tab]['text'])
-                header_mat = np.array(diz['tables'][tab]['header'])
-                link_mat = np.array(diz['tables'][tab]['link'])
-                cells_mat = np.array(diz['tables'][tab]['cells'])
-                entity_mat = np.array(diz['tables'][tab]['entity'])
-                types_mat = np.array(diz['tables'][tab]['types'], dtype=object)
-
-                row_to_keep = set(range(text_mat.shape[0])) - row_to_remove
-                header_row_to_keep = list(row_to_keep.intersection(set(range(header_mat.shape[0]))))
-                row_to_keep = list(row_to_keep)
-
-                text_mat = text_mat[row_to_keep]
-                if header_mat.size > 0:
-                    header_mat = header_mat[header_row_to_keep]
-                link_mat = link_mat[row_to_keep]
-                cells_mat = cells_mat[row_to_keep]
-                entity_mat = entity_mat[row_to_keep]
-                types_mat = types_mat[row_to_keep]
-
-                try:
-                    assert text_mat.shape == link_mat.shape
-                    assert text_mat.shape == entity_mat.shape
-                    if types_mat.size > 0:
-                        assert text_mat.shape == types_mat.shape[:2]
-                    assert text_mat.shape[0] == cells_mat.shape[0]
-                    assert text_mat.shape[1] * 2 == cells_mat.shape[1]
-                    if header_mat.size > 0:
-                        assert text_mat.shape[1] == header_mat.shape[1]
-                        assert text_mat.shape[0] >= header_mat.shape[0]
-                except:
-                    continue
-
-                diz['tables'][tab]['text'] = text_mat.tolist()
-                diz['tables'][tab]['header'] = header_mat.tolist()
-                diz['tables'][tab]['link'] = link_mat.tolist()
-                diz['tables'][tab]['cells'] = cells_mat.tolist()
-                diz['tables'][tab]['entity'] = entity_mat.tolist()
-                diz['tables'][tab]['types'] = types_mat.tolist()
-
-                if ADDACRONIMS:
-                    acro = 0
-                    diz['tables'][tab],acro = AddAcronyms(diz['tables'][tab])
-                    acro_added += acro
-                if ADDTYPOS:
-                    typo = 0
-                    diz['tables'][tab],typo = AddTypos(diz['tables'][tab])
-                    typos_added += typo
-                if APPROXIMATENUMBERS:
-                    approx=0
-                    diz['tables'][tab],approx = ApproximateNumbers(diz['tables'][tab])
-                    approx_added += approx
-                if ADDALIASES:
-                    alias = 0
-                    diz['tables'][tab],alias = AddAliases(diz['tables'][tab])
-                    alias_added += alias
-                
-                #accept father types of an annotation 
-                diz['tables'][tab]['col_types'], diz['tables'][tab]['col_type_perfect'],\
-                    current_filtered = handle_types(diz['tables'][tab]['types']) 
-                filtered_types = filtered_types.union(current_filtered)
-
-                for type in filtered_types:
-                    if IsGeneric(type):
-                        generic_types += 1
-                        if 'generic_types' not in diz['tables'][tab]:
-                            diz['tables'][tab]['generic_types'] = True
-                    else:
-                        specific_types += 1
-                        if 'specific_types' not in diz['tables'][tab]:
-                            diz['tables'][tab]['specific_types'] = True
-
-                perfectCount = len([t for t in diz['tables'][tab]['col_type_perfect'] if t])
-                if(perfectCount <= 2):
-                    diz['tables'][tab]['single_domain'] = True
-                    count_single_domain += 1
-                else:
-                    diz['tables'][tab]['single_domain'] = False
-                    count_multi_domain += 1
-                found_perfect_types += perfectCount
-                tot_cols_with_types += len([t for t in diz['tables'][tab]['col_types'] if t])
-
-                tables_to_keep.add(tab)
-
-            diz['tables'] = {k:t for k,t in diz['tables'].items() if k in tables_to_keep}
-
+            current = {}
+            #main function to add wikidata info
+            diz,current = mammotab_wiki(diz, entities_diz, types_diz, all_titles)
+            for key in current:
+                if key in diz_info:
+                    diz_info[key] += current[key]
             diz_overall[i] = diz
             i+=1
-
-diz_info = {'tot_cells': tot_cells,
-            'tot_linked_cell': tot_linked_cell,
-            'entities_found': entities_found,
-            'entities_not_found': entities_not_found,
-            'types_found': types_found,
-            'types_not_found': types_not_found,
-            'filtered_types': len(filtered_types),
-            'found_perfect_types': found_perfect_types,
-            'tot_cols': tot_cols_with_types,
-            'count_with_header': count_with_header,
-            'count_with_caption': count_with_caption,
-            'count_single_domain': count_single_domain,
-            'count_multi_domain': count_multi_domain,
-            'acro_added': acro_added,
-            'alias_added': alias_added,
-            'typos_added': typos_added,
-            'approx_added': approx_added,
-            'generic_types': generic_types,
-            'specific_types': specific_types
-           }
+        break
 
 #create folder
 cur_dir = os.getcwd()

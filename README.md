@@ -22,9 +22,19 @@ Create a virtualenv (see [docs.python.org/3/tutorial/venv.html](https://docs.pyt
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+touch .env
 ```
 
 We used Python 3.10.12 and an Ubuntu 20 LTS server. All the scripts are supposed to be run from inside a virtualenv with the requirements installed.
+
+The .env file should contain at least the following variables:
+
+```bash
+ADDACRONIMS=True
+ADDALIASES=True
+ADDTYPOS=True
+APPROXIMATENUMBERS=True
+```
 
 The current user home folder should be writable, otherwise downloading of nltk data will fail and you need to manually provide the data. Check `utilities/column_classifier.py` for details.
 
