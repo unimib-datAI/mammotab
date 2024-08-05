@@ -28,17 +28,20 @@ def GetLitColumns(table, lit_type="NUMBER"):
                 litcols.append(col)
     return litcols
 
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'acronyms.json'), 'r') as f:
+    acronym_dict = json.load(f)
 def AddAcronyms(table):
-    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'acronyms.json'), 'r') as f:
-        acronym_dict = json.load(f)
+    acro = 0
     necols = GetNeColumns(table)
     for row in table['text']:
         for i,cell in enumerate(row):
             if i in necols and cell in acronym_dict:
                 cell = acronym_dict[cell]
-    return table
+                acro += 1
+    return table,acro
 
 def AddAliases(table):
+    aliases_added = 0
     necols = GetNeColumns(table)
     necells = set()
     for row in table['entity']:
@@ -55,21 +58,26 @@ def AddAliases(table):
             if entity_cell in aliases:
                 if "en" in aliases[entity_cell]["aliases"]:
                     table['text'][col_index][cell_index] = random.choice(aliases[entity_cell]["aliases"]["en"])
-    return table
+                    aliases_added += 1
+    return table,aliases_added
 
 def AddTypos(table):
+    typos_added = 0
     necols = GetNeColumns(table)
     for row in table['text']:
         for i,cell in enumerate(row):
             if i in necols:
                 cell = add_random_typo(cell)
-    return table
+                typos_added += 1
+    return table,typos_added
 
 def ApproximateNumbers(table):
+    approx = 0
     litcols = GetLitColumns(table)
     for row in table['text']:
         for i,cell in enumerate(row):
             if i in litcols:
                 cell = str(float(cell) + random.randint(-1,1))
-    return table
+                approx += 1
+    return table,approx
 

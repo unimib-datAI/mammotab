@@ -6,11 +6,11 @@ ontology = Counter()
 errors = 0
 total = 0
 
-# bzcat wikidata-20220521-truthy.nt.bz2 | 
+# bzcat latest-all.nt.bz2 | 
 # awk '$2 == "<http://www.wikidata.org/prop/direct/P31>" 
-# {print $0}'| gzip -c > SubclassOf.gz
+# {print $0}'| gzip -c > InstanceOf.gz
 
-with gzip.open('SubclassOf.gz', 'rt') as fd:
+with gzip.open('InstanceOf.gz', 'rt') as fd:
     line = fd.readline()
     while line:
         total += 1

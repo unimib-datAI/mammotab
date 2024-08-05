@@ -108,6 +108,11 @@ count_with_caption = 0
 count_single_domain = 0
 count_multi_domain = 0
 
+acro_added = 0
+alias_added = 0
+typos_added = 0
+approx_added = 0
+
 for f_name in tqdm(os.listdir(folder_name)):
     if 'diz_' in f_name:
         with gzip.open(os.path.join(folder_name, f_name), 'rb') as f:
@@ -242,14 +247,21 @@ for f_name in tqdm(os.listdir(folder_name)):
                 diz['tables'][tab]['types'] = types_mat.tolist()
 
                 if ADDACRONIMS:
-                    diz['tables'][tab] = AddAcronyms(diz['tables'][tab])
+                    acro = 0
+                    diz['tables'][tab],acro = AddAcronyms(diz['tables'][tab])
+                    acro_added += acro
                 if ADDTYPOS:
-                    diz['tables'][tab] = AddTypos(diz['tables'][tab])
+                    typo = 0
+                    diz['tables'][tab],typo = AddTypos(diz['tables'][tab])
+                    typos_added += typo
                 if APPROXIMATENUMBERS:
-                    diz['tables'][tab] = ApproximateNumbers(diz['tables'][tab])
+                    approx=0
+                    diz['tables'][tab],approx = ApproximateNumbers(diz['tables'][tab])
+                    approx_added += approx
                 if ADDALIASES:
-                    diz['tables'][tab] = AddAliases(diz['tables'][tab])
-
+                    alias = 0
+                    diz['tables'][tab],alias = AddAliases(diz['tables'][tab])
+                    alias_added += alias
                 
                 #accept father types of an annotation 
                 diz['tables'][tab]['col_types'], diz['tables'][tab]['col_type_perfect'],\
@@ -286,6 +298,10 @@ diz_info = {'tot_cells': tot_cells,
             'count_with_caption': count_with_caption,
             'count_single_domain': count_single_domain,
             'count_multi_domain': count_multi_domain,
+            'acro_added': acro_added,
+            'alias_added': alias_added,
+            'typos_added': typos_added,
+            'approx_added': approx_added
            }
 
 #create folder
