@@ -1,4 +1,4 @@
-import pickle
+import pickle,json,os
 import functools
 import numpy as np
 
@@ -7,6 +7,13 @@ with open('ontology_complete.pickle', 'rb') as fd:
     ontology_complete = pickle.load(fd)
 with open('depth.pickle', 'rb') as fd:
     depth = pickle.load(fd)
+
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'most_common.json'), 'r') as file:
+    data = json.load(file)
+    first_5000_keys = list(data.keys())[:5000]
+
+def IsGeneric(qid):
+    return qid in first_5000_keys
     
 def is_subclass(a, b):
     # descending order

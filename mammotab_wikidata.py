@@ -11,7 +11,7 @@ import gzip
 import json
 import pickle
 import re
-from utilities.utils_wd import handle_types
+from utilities.utils_wd import handle_types,IsGeneric
 from utilities.lamapi import call_lamapi
 from utilities.exporter import AddAcronyms,AddAliases,AddTypos,ApproximateNumbers
 
@@ -112,6 +112,9 @@ acro_added = 0
 alias_added = 0
 typos_added = 0
 approx_added = 0
+
+generic_types = 0
+specific_types = 0
 
 for f_name in tqdm(os.listdir(folder_name)):
     if 'diz_' in f_name:
@@ -268,6 +271,16 @@ for f_name in tqdm(os.listdir(folder_name)):
                     current_filtered = handle_types(diz['tables'][tab]['types']) 
                 filtered_types = filtered_types.union(current_filtered)
 
+                for type in filtered_types:
+                    if IsGeneric(type):
+                        generic_types += 1
+                        if 'generic_types' not in diz['tables'][tab]:
+                            diz['tables'][tab]['generic_types'] = True
+                    else:
+                        specific_types += 1
+                        if 'specific_types' not in diz['tables'][tab]:
+                            diz['tables'][tab]['specific_types'] = True
+
                 perfectCount = len([t for t in diz['tables'][tab]['col_type_perfect'] if t])
                 if(perfectCount <= 2):
                     diz['tables'][tab]['single_domain'] = True
@@ -301,7 +314,9 @@ diz_info = {'tot_cells': tot_cells,
             'acro_added': acro_added,
             'alias_added': alias_added,
             'typos_added': typos_added,
-            'approx_added': approx_added
+            'approx_added': approx_added,
+            'generic_types': generic_types,
+            'specific_types': specific_types
            }
 
 #create folder
