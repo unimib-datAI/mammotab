@@ -15,12 +15,14 @@ from tqdm import tqdm
 from utilities.utils import clean_cell, keygen, normalize_links
 from utilities.tokenizer import Tokenizer
 import html
+from dotenv import load_dotenv
 
+load_dotenv()
 # Max number of rows parsed in a table
-MAXLINES = 10000
-MAXCOLUMNS = 1000
-MAXHEADERS = 200
-ENABLE_EXTERNAL_CONTEXT = False
+MAXLINES = int(os.getenv('MAXLINES'))
+MAXCOLUMNS = int(os.getenv('MAXCOLUMNS'))
+MAXHEADERS = int(os.getenv('MAXHEADERS'))
+ENABLE_EXTERNAL_CONTEXT = bool(os.getenv('ENABLE_EXTERNAL_CONTEXT'))
 #file_name = 'enwiki-20220720-pages-articles-multistream2.xml-p41243p151573.bz2'
 # call by using "python mammotab_v3.py filename.bz2"
 file_name = sys.argv[1]                                                    

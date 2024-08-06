@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ADDACRONIMS = os.getenv('ADDACRONIMS')
-ADDALIASES = os.getenv('ADDALIASES')
-ADDTYPOS = os.getenv('ADDTYPOS')
-APPROXIMATENUMBERS = os.getenv('APPROXIMATENUMBERS')
+ADDACRONIMS = bool(os.getenv('ADDACRONIMS'))
+ADDALIASES = bool(os.getenv('ADDALIASES'))
+ADDTYPOS = bool(os.getenv('ADDTYPOS'))
+APPROXIMATENUMBERS = bool(os.getenv('APPROXIMATENUMBERS'))
 
 base_threshold = 0.6
 with open('ontology_complete.pickle', 'rb') as fd:

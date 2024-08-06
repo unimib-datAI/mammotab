@@ -34,6 +34,10 @@ ADDACRONIMS=True
 ADDALIASES=True
 ADDTYPOS=True
 APPROXIMATENUMBERS=True
+MAXLINES = 10000
+MAXCOLUMNS = 1000
+MAXHEADERS = 200
+ENABLE_EXTERNAL_CONTEXT = False
 ```
 
 The current user home folder should be writable, otherwise downloading of nltk data will fail and you need to manually provide the data. Check `utilities/column_classifier.py` for details.
