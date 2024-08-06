@@ -145,7 +145,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
                             try:
                                 types_line.append(types_diz[entity])
                                 current['types_found']+=1
-                                manage_generic_types(current,types_diz[entity].values(),diz['tables'][tab])
+                                manage_generic_types(current,types_diz[entity].values(),diz['tables'][tab]['tags'])
                             except KeyError:
                                 types_line.append([])
                                 current['types_not_found']+=1
@@ -158,7 +158,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
                             try:
                                 types_line.append(types_diz[entity])
                                 current['types_found']+=1
-                                manage_generic_types(current,types_diz[entity].values(),diz['tables'][tab])
+                                manage_generic_types(current,types_diz[entity].values(),diz['tables'][tab]['tags'])
                             except KeyError:
                                 types_line.append([])
                                 current['types_not_found']+=1

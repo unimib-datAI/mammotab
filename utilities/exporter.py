@@ -35,8 +35,9 @@ def AddAcronyms(table):
     necols = GetNeColumns(table)
     for row in table['text']:
         for i,cell in enumerate(row):
-            if str(i) in necols and cell.lower() in acronym_dict:
-                cell = acronym_dict[cell]
+            lcell = cell.lower()
+            if str(i) in necols and lcell in acronym_dict:
+                cell = acronym_dict[lcell]
                 acro += 1
     return table,acro
 
@@ -74,9 +75,15 @@ def AddTypos(table):
 def ApproximateNumbers(table):
     approx = 0
     litcols = GetLitColumns(table)
+    if len(litcols) == 0:
+        return table,approx
     for row in table['text']:
         for i,cell in enumerate(row):
             if str(i) in litcols:
+                try:
+                    float(cell)
+                except:
+                    continue
                 cell = str(float(cell) + random.randint(-1,1))
                 approx += 1
     return table,approx
