@@ -22,7 +22,7 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'most_common.j
     first_5000_keys = list(data.keys())[:5000]
 
 def IsGeneric(qid):
-    return qid in first_5000_keys
+    return str(qid).replace('Q','') in first_5000_keys
     
 def is_subclass(a, b):
     # descending order
@@ -77,6 +77,18 @@ def handle_types(list_of_types):
 
     return counter, perfect, to_filter
 
+def manage_generic_types(current,types,ctab):
+    for tp in types:
+        for t in tp:
+            if IsGeneric(t):
+                current['generic_types'] += 1
+                if 'generic_types' not in ctab:
+                    ctab['generic_types'] = True
+            else:
+                current['specific_types'] += 1
+                if 'specific_types' not in ctab:
+                    ctab['specific_types'] = True
+
 def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
     filtered_types = set()
     current = {
@@ -101,7 +113,6 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
         'count_multi_domain': 0
     }
     tables_to_keep = set()
-    print("initial diz",diz)
 
     for tab in diz['tables']:
         table_link = diz['tables'][tab]['link']
@@ -134,6 +145,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
                             try:
                                 types_line.append(types_diz[entity])
                                 current['types_found']+=1
+                                manage_generic_types(current,types_diz[entity].values(),diz['tables'][tab])
                             except KeyError:
                                 types_line.append([])
                                 current['types_not_found']+=1
@@ -146,6 +158,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
                             try:
                                 types_line.append(types_diz[entity])
                                 current['types_found']+=1
+                                manage_generic_types(current,types_diz[entity].values(),diz['tables'][tab])
                             except KeyError:
                                 types_line.append([])
                                 current['types_not_found']+=1
@@ -178,16 +191,16 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
             diz['tables'][tab]['entity'].append(entities_line)
             diz['tables'][tab]['types'].append(types_line)
 
-            if(len(diz['tables'][tab]['header']) > 0):
-                diz['tables'][tab]['tags']['header'] = True
-                current['count_with_header'] += 1
-            else:
-                diz['tables'][tab]['tags']['header'] = False   
-            if(diz['tables'][tab]['caption']!=None):
-                diz['tables'][tab]['tags']['caption'] = True
-                current['count_with_caption'] += 1
-            else:
-                diz['tables'][tab]['tags']['caption'] = False
+        if(len(diz['tables'][tab]['header']) > 0):
+            diz['tables'][tab]['tags']['header'] = True
+            current['count_with_header'] += 1
+        else:
+            diz['tables'][tab]['tags']['header'] = False   
+        if(diz['tables'][tab]['caption'] and diz['tables'][tab]['caption']!='None'):
+            diz['tables'][tab]['tags']['caption'] = True
+            current['count_with_caption'] += 1
+        else:
+            diz['tables'][tab]['tags']['caption'] = False
 
         # remove rows with wikidata item in clear text
         text_mat = np.array(diz['tables'][tab]['text'])
@@ -250,17 +263,6 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
         diz['tables'][tab]['col_types'], diz['tables'][tab]['col_type_perfect'],\
             current_filtered = handle_types(diz['tables'][tab]['types']) 
         filtered_types = filtered_types.union(current_filtered)
-        
-        # TODO REVISE
-        for type in filtered_types:
-            if IsGeneric(type):
-                current['generic_types'] += 1
-                if 'generic_types' not in diz['tables'][tab]:
-                    diz['tables'][tab]['generic_types'] = True
-            else:
-                current['specific_types'] += 1
-                if 'specific_types' not in diz['tables'][tab]:
-                    diz['tables'][tab]['specific_types'] = True
 
         perfectCount = len([t for t in diz['tables'][tab]['col_type_perfect'] if t])
         if(perfectCount <= 2):
@@ -276,6 +278,5 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
 
     current['filtered_types'] = len(filtered_types)
     diz['tables'] = {k:t for k,t in diz['tables'].items() if k in tables_to_keep}
-    print("final diz",diz)
-    print("current",current)
+    #print("current",current)
     return diz,current

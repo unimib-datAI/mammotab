@@ -75,7 +75,6 @@ for f_name in tqdm(os.listdir(folder_name)):
                                 #anche se non è linkata potrebbe avere un'entità, si prova lo stesso?
                         else:
                             diz_info['tot_nolink'] +=1
-        break
 
 
 #creating dictiory of entities and types based on wikidata
@@ -104,18 +103,8 @@ if not os.path.exists(new_dir):
 with open(os.path.join(new_dir, 'entities_diz_' + fol_name +'.json'), 'w') as f:
     json.dump(entities_diz, f)
 
-# entities and types
-tot_cells = 0
-tot_linked_cell = 0
-entities_found = 0
-entities_not_found = 0
-types_found = 0
-types_not_found = 0
-
 diz_overall = {}
 i=0
-
-
 for f_name in tqdm(os.listdir(folder_name)):
     if 'diz_' in f_name:
         with gzip.open(os.path.join(folder_name, f_name), 'rb') as f:
@@ -128,7 +117,6 @@ for f_name in tqdm(os.listdir(folder_name)):
                     diz_info[key] += current[key]
             diz_overall[i] = diz
             i+=1
-        break
 
 #create folder
 cur_dir = os.getcwd()

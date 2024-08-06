@@ -35,21 +35,20 @@ def AddAcronyms(table):
     necols = GetNeColumns(table)
     for row in table['text']:
         for i,cell in enumerate(row):
-            if i in necols and cell in acronym_dict:
+            if str(i) in necols and cell.lower() in acronym_dict:
                 cell = acronym_dict[cell]
                 acro += 1
-                print(cell,acro)
     return table,acro
 
 def AddAliases(table):
     aliases_added = 0
     necols = GetNeColumns(table)
     necells = set()
-    for row in table['entity']:
-        for col in necols:
-            col_index = int(col)
-            if col_index in row and row[col_index]!='':
-                necells.add(row[col_index])
+    for col_index,row in enumerate(table['entity']):
+        if str(col_index) in necols:
+            for col in row:
+                if col!='':
+                    necells.add(col)
     aliases = call_lamapi(list(necells), 'aliases')
     for col_index,col in enumerate(table['text']):
         entity = table['entity'][col_index]
@@ -60,7 +59,6 @@ def AddAliases(table):
                 if "en" in aliases[entity_cell]["aliases"]:
                     table['text'][col_index][cell_index] = random.choice(aliases[entity_cell]["aliases"]["en"])
                     aliases_added += 1
-                    print(table['text'][col_index][cell_index],aliases_added)
     return table,aliases_added
 
 def AddTypos(table):
@@ -68,10 +66,9 @@ def AddTypos(table):
     necols = GetNeColumns(table)
     for row in table['text']:
         for i,cell in enumerate(row):
-            if i in necols:
+            if str(i) in necols:
                 cell = add_random_typo(cell)
                 typos_added += 1
-                print(cell,typos_added)
     return table,typos_added
 
 def ApproximateNumbers(table):
@@ -79,9 +76,8 @@ def ApproximateNumbers(table):
     litcols = GetLitColumns(table)
     for row in table['text']:
         for i,cell in enumerate(row):
-            if i in litcols:
+            if str(i) in litcols:
                 cell = str(float(cell) + random.randint(-1,1))
                 approx += 1
-                print(cell,approx)
     return table,approx
 
