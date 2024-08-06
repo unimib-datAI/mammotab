@@ -101,6 +101,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
         'count_multi_domain': 0
     }
     tables_to_keep = set()
+    print("initial diz",diz)
 
     for tab in diz['tables']:
         table_link = diz['tables'][tab]['link']
@@ -275,4 +276,6 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
 
     current['filtered_types'] = len(filtered_types)
     diz['tables'] = {k:t for k,t in diz['tables'].items() if k in tables_to_keep}
+    print("final diz",diz)
+    print("current",current)
     return diz,current

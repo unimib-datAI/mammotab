@@ -38,6 +38,8 @@ MAXLINES = 10000
 MAXCOLUMNS = 1000
 MAXHEADERS = 200
 ENABLE_EXTERNAL_CONTEXT = False
+LAMAPI_ROOT=http://example.lamapi.address:port/
+LAMAPI_TOKEN=lamapi_token_secret
 ```
 
 The current user home folder should be writable, otherwise downloading of nltk data will fail and you need to manually provide the data. Check `utilities/column_classifier.py` for details.
@@ -135,13 +137,7 @@ This scripts gets the wikidata entities corresponding to wikipedia links and add
 
 [LamAPI](https://bitbucket.org/disco_unimib/lamapi) is used to easily access Wikidata and DBpedia data.
 
-Modify the environment variables according to your LAMAPI instance
-
-```
-# modify according to your lamapi instance
-export LAMAPI_ROOT=http://example.lamapi.address:port/
-export LAMAPI_TOKEN=lamapi_token_secret
-```
+Modify the environment variables according to your LAMAPI instance.
 
 then run:
 

@@ -61,9 +61,9 @@ class LamAPI():
 
     def __init__(self, response_format="json", kg="wikidata") -> None:
         self.format = response_format
-        base_url = os.environ.get('LAMAPI_ROOT')
+        base_url = os.getenv('LAMAPI_ROOT')
         self._url = URL(base_url, response_format=response_format)
-        self.client_key = os.environ.get('LAMAPI_TOKEN')
+        self.client_key = os.getenv('LAMAPI_TOKEN')
         self.kg = kg
         self.headers = {
             'accept': 'application/json'
