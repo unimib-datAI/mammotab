@@ -265,6 +265,8 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
         filtered_types = filtered_types.union(current_filtered)
 
         perfectCount = len([t for t in diz['tables'][tab]['col_type_perfect'] if t])
+        #TODO this need to be improved to consider the number and frequency 
+        # of types in the column to identify if it is a single domain table
         if(perfectCount <= 2):
             diz['tables'][tab]['single_domain'] = True
             current['count_single_domain'] += 1
