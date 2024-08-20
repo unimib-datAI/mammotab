@@ -1,4 +1,7 @@
 import requests,os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def call_lamapi(list_of, ent_typ): #call LamAPI to get entities, types or literal types
     if ent_typ == 'entities':

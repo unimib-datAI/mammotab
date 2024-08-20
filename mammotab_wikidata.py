@@ -12,7 +12,6 @@ import json
 import pickle
 from utilities.utils_wd import mammotab_wiki
 from utilities.lamapi import call_lamapi
-from utilities.exporter import AddAcronyms,AddAliases,AddTypos,ApproximateNumbers
 
 with open('all_titles.pickle', 'rb') as fd:
     all_titles = pickle.load(fd)
