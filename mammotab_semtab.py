@@ -88,8 +88,8 @@ for i in tqdm(diz_overall):
                 col_types += sum(1 for col in col_types_mat if col)
                 col_types_perfect_n += sum(1 for col in col_types_perfect_mat if col)
 
-                cells = set([cell for row in entity_mat for cell in row if cell.startswith('Q')])
-                all_entities = all_entities.union(cells)
+                entity_cells = set([cell for row in entity_mat for cell in row if cell.startswith('Q')])
+                all_entities = all_entities.union(entity_cells)
 
                 tables_to_keep.append(tabcode)
 
