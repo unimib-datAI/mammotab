@@ -68,10 +68,10 @@ def clean_cell(string):
     clean = re.sub(r"(.*d)\{\{(.*?)\}\}", r"\1", clean)
 
     # CE7 RULE Final cleaning
-    clean = clean.replace('\xa0', ' ').replace('&nbsp;', ' ').replace('&amp;', '&').replace('&ndash;', '-')
+    clean = clean.replace('\xa0', ' ').replace('&nbsp;', ' ').replace('&amp;', '&').replace('&ndash;', '-').replace('–', '-').replace(u'\u2013','-')
 
     # CE8 RULE Remove any remaining artifacts
-    clean = clean.replace('{{}}', '').replace('[[]]', '').replace('()', '').replace('"', '')
+    clean = clean.replace('{{}}', '').replace('[[]]', '').replace('()', '').replace('"', '').replace("''", '')
 
     # CE9 RULE Remove leading and trailing spaces
     clean = clean.strip()

@@ -22,7 +22,7 @@
 
 ## RULES APPLIED TO TABLE COLUMNS
 
-**CO1** remove all columns containing only empty strings '', ' ', '-'
+**CO1** remove when more than half are empty ( '', ' ', '-' )
 
 **CO2** remove all columns containing only one repeated value
 
@@ -32,7 +32,7 @@
 
 ## RULES APPLIED TO TABLE ROWS
 
-**TR1** remove all rows containing only empty strings '', ' ', '-'
+**TR1** remove when more than half are empty ( '', ' ', '-' )
 
 **TR2** remove all rows containing only one repeated value
 

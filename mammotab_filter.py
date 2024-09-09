@@ -75,8 +75,9 @@ for f_name in tqdm(os.listdir(os.path.join(source_folder, folder_name))):
                     continue
                 tab['cell_types_dict'][col_id] = frequency_dict
                 tab['col_by_row'][col_id] = current_col.tolist()
-                # CO1 RULE remove all empty string or -
-                if all(map(lambda x: x in set(['', ' ', "-"]), current_col)):
+                # CO1 RULE remove when more than half are empty string or -
+                empty_cells_count = sum(1 for cell in current_col if cell in set(['', ' ', '-','None']))
+                if empty_cells_count >= len(current_col) / 2:
                     col_to_remove.add(col_id)
                 # CO2 RULE remove columns with only one repeated value
                 elif len(set(current_col)) == 1:
@@ -109,7 +110,8 @@ for f_name in tqdm(os.listdir(os.path.join(source_folder, folder_name))):
         row_to_remove = set()
         for row_id, row in enumerate(text_mat):
             # TR1 RULE remove all empty string or -
-            if all(map(lambda x: x in set(['', ' ', "-"]), row)):
+            empty_cells_count = sum(1 for cell in row if cell in set(['', ' ', '-', 'None']))
+            if empty_cells_count >= len(row) / 2:
                 row_to_remove.add(row_id)
             # TR2 RULE remove columns with only one repeated value
             elif len(set(col[len(row):])) == 1:

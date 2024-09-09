@@ -12,7 +12,6 @@ import numpy as np
 from bs4 import BeautifulSoup, SoupStrainer
 import wikitextparser as wtp
 from tqdm import tqdm
-from utilities.utils import clean_cell, keygen, normalize_links
 from utilities.tokenizer import Tokenizer
 import html
 from dotenv import load_dotenv
@@ -135,18 +134,12 @@ for page in tqdm(soup):
 
                         celltype = Tokenizer.GetType(cell_str)
                         cell_type.append(celltype)
-                        #CRITERION:
-                        #-- if cell is linked
-                        #-- cell starts and ends w/ square brackets
-                        #-- ONLY ONE link is recognized
-                        #if link_mat and cell_str.startswith('[[')\
-                        # and cell_str.endswith(']]') and len(more_than_one) < 2:
-                        #    cell_str = clean_cell(cell_str)
-                        # only one link occupying the whole cell
+                        cell_str = clean_cell(cell)
+                        
                         if len(links_wtp) == 1 and\
                             len(links_wtp[0].plain_text()) == len(cell_parsed.plain_text()):
                             normalized = normalize_links(links_wtp[0].target)
-                            cell_str = clean_cell(cell)
+                            
                             tab_line.append(cell_str)
                             tab_line.append(normalized)
 
