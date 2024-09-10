@@ -48,6 +48,7 @@ def handle_types(list_of_types):
     nlines = len(list_of_types)
     # rotate
     list_of_types = np.array(list_of_types, dtype=object).T.tolist()
+    #print("list_of_types",list_of_types)
     counter = []
     perfect = []
     to_filter = set()
@@ -61,20 +62,28 @@ def handle_types(list_of_types):
                 else:
                     current_counter[_type] = 1
         current_counter = {k:v / nlines for k,v in current_counter.items()}
+        #breakpoint()
         # exclude all types that are nor subject nor object of the relation is_subclass
         to_filter = to_filter.union(set([t for t in current_counter if t not in depth]))
         current_counter = {k:v for k,v in current_counter.items() if k not in to_filter}
+
         current_counter = sorted(current_counter.items(), key=lambda x: functools.cmp_to_key(is_subclass)(x[0]))
         current_counter = [('Q{}'.format(_type),coverage) for _type, coverage in current_counter]
-
+        # EXAMPLE: [('Q486972', 0.01818181818181818), ('Q3957', 0.01818181818181818), ('Q1093829', 0.7090909090909091), ('Q62049', 0.4727272727272727), ('Q1074523', 0.2), ('Q1549591', 0.2909090909090909), ('Q15127012', 0.05454545454545454), ('Q17201685', 0.01818181818181818), ('Q13410438', 0.14545454545454545)]
+        # from the most generic to the most specific types
+        #print("current_counter",current_counter)
+        
         counter.append(current_counter)
 
         th = dynamic_threshold(nlines, base_threshold)
+        #print("th",th)
+        
         try:
+            #find the first most specific (reversed) type that has a value greater than the threshold
             perfect.append(next(c for c,v in reversed(current_counter) if v >= th))
         except:
             perfect.append('')
-
+    
     return counter, perfect, to_filter
 
 def manage_generic_types(current,types,ctab):
@@ -167,7 +176,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
                             try:
                                 types_line.append(types_diz[entity])
                                 local['types_found']+=1
-                                manage_generic_types(local,types_diz[entity].values(),diz['tables'][tab]['tags'])
+                                manage_generic_types(local,types_diz[entity],diz['tables'][tab]['tags'])
                             except KeyError:
                                 types_line.append([])
                                 local['types_not_found']+=1
@@ -180,7 +189,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
                             try:
                                 types_line.append(types_diz[entity])
                                 local['types_found']+=1
-                                manage_generic_types(local,types_diz[entity].values(),diz['tables'][tab]['tags'])
+                                manage_generic_types(local,types_diz[entity],diz['tables'][tab]['tags'])
                             except KeyError:
                                 types_line.append([])
                                 local['types_not_found']+=1
@@ -231,6 +240,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
         link_mat = np.array(diz['tables'][tab]['link'])
         cells_mat = np.array(diz['tables'][tab]['cells'])
         entity_mat = np.array(diz['tables'][tab]['entity'])
+
         types_mat = np.array(diz['tables'][tab]['types'], dtype=object)
 
         row_to_keep = set(range(text_mat.shape[0])) - row_to_remove

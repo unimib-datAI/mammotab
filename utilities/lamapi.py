@@ -33,18 +33,17 @@ def call_lamapi(list_of, ent_typ): #call LamAPI to get entities, types or litera
 
     elif ent_typ == 'types':
         res = requests.post(uri+'&kg=wikidata',json=payload)
-
+        #breakpoint()
         diz_temp = res.json()
         # manage older version of LamAPI returning the additional 'wikidata' key
         if 'wikidata' in diz_temp:
             diz_temp = diz_temp['wikidata']
         source = 'types' #direct_types, types
-
         diz_new = {}
 
         for key,value in diz_temp.items():
             if value['types']:
-                diz_new[key] = value['types'] #[0] --> uncomment to select one type
+                diz_new[key] = value['types']['P31'] #[0] --> uncomment to select one type
         return diz_new
 
     elif ent_typ == 'literals':
