@@ -98,6 +98,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
         'types_found': 0,
         'types_not_found': 0,
         'tot_cells': 0,
+        'nils': 0,
         'count_with_header': 0,
         'count_with_caption': 0,
         'acro_added': 0,
@@ -122,14 +123,35 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
         diz['tables'][tab]['col_types'] = []
         table_tags = diz['tables'][tab]['tags']
         row_to_remove = set()
-
+        local = {
+            'tot_linked_cell': 0,
+            'entities_found': 0,
+            'entities_not_found': 0,
+            'types_found': 0,
+            'types_not_found': 0,
+            'tot_cells': 0,
+            'nils': 0,
+            'count_with_header': 0,
+            'count_with_caption': 0,
+            'acro_added': 0,
+            'typos_added': 0,
+            'approx_added': 0,
+            'alias_added': 0,
+            'generic_types': 0,
+            'specific_types': 0,
+            'filtered_types': 0,
+            'found_perfect_types': 0,
+            'tot_cols_with_types': 0,
+            'count_single_domain': 0,
+            'count_multi_domain': 0
+        }
         for row_id, line_link in enumerate(table_link):
             entities_line = []
             types_line = []
             for col_id, cell_link in enumerate(line_link):
                 if cell_link:
                     #print(cell_text,cell_link)
-                    current['tot_linked_cell']+=1
+                    local['tot_linked_cell']+=1
                     # a wikidata link
                     if cell_link.startswith(':d:Q'):
                         # wikidata
@@ -140,28 +162,28 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
                         else:
                             entity = cell_link[3:]
                             entities_line.append(entity)
-                            current['entities_found']+=1
+                            local['entities_found']+=1
 
                             try:
                                 types_line.append(types_diz[entity])
-                                current['types_found']+=1
-                                manage_generic_types(current,types_diz[entity].values(),diz['tables'][tab]['tags'])
+                                local['types_found']+=1
+                                manage_generic_types(local,types_diz[entity].values(),diz['tables'][tab]['tags'])
                             except KeyError:
                                 types_line.append([])
-                                current['types_not_found']+=1
+                                local['types_not_found']+=1
                     else:
                         try:
                             entity = entities_diz[cell_link]
                             entities_line.append(entity)
-                            current['entities_found']+=1
+                            local['entities_found']+=1
 
                             try:
                                 types_line.append(types_diz[entity])
-                                current['types_found']+=1
-                                manage_generic_types(current,types_diz[entity].values(),diz['tables'][tab]['tags'])
+                                local['types_found']+=1
+                                manage_generic_types(local,types_diz[entity].values(),diz['tables'][tab]['tags'])
                             except KeyError:
                                 types_line.append([])
-                                current['types_not_found']+=1
+                                local['types_not_found']+=1
 
 
                         except KeyError:
@@ -169,36 +191,37 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
                             # not found with lamapi
                             # check if link not present in wikipedia -> NIL, red wiki link
                             if cell_link not in all_titles:
-                                current['entities_not_found']+=1
-                                if col_id not in table_tags:
-                                    table_tags[col_id] = {}
+                                local['entities_not_found']+=1
+                                local['nils']+=1
+                                if str(col_id) not in table_tags:
+                                    table_tags[str(col_id)] = {}
                                 table_tags[str(col_id)]['nil_present'] = True
                                 entities_line.append('NIL')
                             else:
-                                current['entities_not_found']+=1
+                                local['entities_not_found']+=1
                                 #entities not in dictionary --> (possible nil?)
                                 entities_line.append('') 
 
-                            current['types_not_found']+=1
+                            local['types_not_found']+=1
                             types_line.append([])
 
                 else:
                     entities_line.append('')
                     types_line.append([])
 
-                current['tot_cells']+=1
+                local['tot_cells']+=1
 
             diz['tables'][tab]['entity'].append(entities_line)
             diz['tables'][tab]['types'].append(types_line)
 
         if(len(diz['tables'][tab]['header']) > 0):
             diz['tables'][tab]['tags']['header'] = True
-            current['count_with_header'] += 1
+            local['count_with_header'] += 1
         else:
             diz['tables'][tab]['tags']['header'] = False   
         if(diz['tables'][tab]['caption'] and diz['tables'][tab]['caption']!='None'):
             diz['tables'][tab]['tags']['caption'] = True
-            current['count_with_caption'] += 1
+            local['count_with_caption'] += 1
         else:
             diz['tables'][tab]['tags']['caption'] = False
 
@@ -245,40 +268,42 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
         if ADDACRONIMS:
             acro = 0
             diz['tables'][tab],acro = AddAcronyms(diz['tables'][tab])
-            current['acro_added'] += acro
+            local['acro_added'] += acro
         if ADDTYPOS:
             typo = 0
             diz['tables'][tab],typo = AddTypos(diz['tables'][tab])
-            current['typos_added'] += typo
+            local['typos_added'] += typo
         if APPROXIMATENUMBERS:
             approx=0
             diz['tables'][tab],approx = ApproximateNumbers(diz['tables'][tab])
-            current['approx_added'] += approx
+            local['approx_added'] += approx
         if ADDALIASES:
             alias = 0
             diz['tables'][tab],alias = AddAliases(diz['tables'][tab])
-            current['alias_added'] += alias
+            local['alias_added'] += alias
         
         #accept father types of an annotation 
         diz['tables'][tab]['col_types'], diz['tables'][tab]['col_type_perfect'],\
             current_filtered = handle_types(diz['tables'][tab]['types']) 
         filtered_types = filtered_types.union(current_filtered)
-
+        local['filtered_types'] = len(filtered_types)
         perfectCount = len([t for t in diz['tables'][tab]['col_type_perfect'] if t])
         #TODO this need to be improved to consider the number and frequency 
         # of types in the column to identify if it is a single domain table
         if(perfectCount <= 2):
             diz['tables'][tab]['single_domain'] = True
-            current['count_single_domain'] += 1
+            local['count_single_domain'] += 1
         else:
             diz['tables'][tab]['single_domain'] = False
-            current['count_multi_domain'] += 1
-        current['found_perfect_types'] += perfectCount
-        current['tot_cols_with_types'] += len([t for t in diz['tables'][tab]['col_types'] if t])
-
+            local['count_multi_domain'] += 1
+        local['found_perfect_types'] += perfectCount
+        local['tot_cols_with_types'] += len([t for t in diz['tables'][tab]['col_types'] if t])
+        diz['tables'][tab]['stats'] = local
         tables_to_keep.add(tab)
-
-    current['filtered_types'] = len(filtered_types)
+    for key in local:
+        if key in current:
+            current[key] += local[key]
+    
     diz['tables'] = {k:t for k,t in diz['tables'].items() if k in tables_to_keep}
     #print("current",current)
     return diz,current

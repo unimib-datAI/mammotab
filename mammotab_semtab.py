@@ -7,16 +7,29 @@ import sys
 import csv
 from pprint import pprint
 
-n_tables = 0
-cells = 0
-rows = 0
-cols = 0
-links = 0
-mentions = 0
-nils = 0
-types = 0 # number of cells with at least a type
-col_types = 0 # number of columns with at least a type
-col_types_perfect_n = 0 # number of columns with at least a perfect type
+stats = {
+    'n_tables': 0,
+    'cells': 0,
+    'rows': 0,
+    'cols' : 0,
+    'tot_linked_cell' : 0,
+    'types_not_found': 0,
+    'types_found': 0,
+    'mentions' : 0,
+    'nils' : 0,
+    'count_with_header': 0,
+    'count_with_caption': 0,
+    'acro_added': 0,
+    'typos_added': 0,
+    'approx_added': 0,
+    'alias_added': 0,
+    'generic_types': 0,
+    'specific_types': 0,
+    'filtered_types': 0,
+    'found_perfect_types': 0,
+    'tot_cols_with_types': 0,
+    'count_single_domain': 0,
+    'count_multi_domain': 0}
 
 base_folder = sys.argv[1]
 
@@ -68,10 +81,10 @@ for i in tqdm(diz_overall):
             current_max = np.amax(ent_sum)
 
             if current_max >= min_links_number:
-                n_tables += 1
-                rows += len(el['tables'][tab]['text'])
-                cols += len(el['tables'][tab]['text'][0])
-                cells += len(el['tables'][tab]['text']) * len(el['tables'][tab]['text'][0])
+                stats['n_tables'] += 1
+                stats['rows'] += len(el['tables'][tab]['text'])
+                stats['cols'] += len(el['tables'][tab]['text'][0])
+                stats['cells'] += len(el['tables'][tab]['text']) * len(el['tables'][tab]['text'][0])
 
             
                 text_mat = el['tables'][tab]['text']
@@ -81,12 +94,27 @@ for i in tqdm(diz_overall):
                 col_types_mat = el['tables'][tab]['col_types']
                 col_types_perfect_mat = el['tables'][tab]['col_type_perfect']
 
-                links += sum(1 for row in link_mat for cell in row if cell)
-                mentions += sum(1 for row in entity_mat for cell in row if cell)
-                nils += sum(1 for row in entity_mat for cell in row if cell == 'NIL')
-                types += sum(1 for row in types_mat for cell in row if cell)
-                col_types += sum(1 for col in col_types_mat if col)
-                col_types_perfect_n += sum(1 for col in col_types_perfect_mat if col)
+                print(el['tables'][tab]['stats'])
+                stats['tot_linked_cell'] += el['tables'][tab]['stats']['tot_linked_cell']
+                stats['types_found'] += el['tables'][tab]['stats']['types_found']
+                stats['types_not_found'] += el['tables'][tab]['stats']['types_not_found']
+                stats['count_with_header'] += el['tables'][tab]['stats']['count_with_header']
+                stats['count_with_caption'] += el['tables'][tab]['stats']['count_with_caption']
+                stats['acro_added'] += el['tables'][tab]['stats']['acro_added']
+                stats['typos_added'] += el['tables'][tab]['stats']['typos_added']
+                stats['approx_added'] += el['tables'][tab]['stats']['approx_added']
+                stats['alias_added'] += el['tables'][tab]['stats']['alias_added']
+                stats['generic_types'] += el['tables'][tab]['stats']['generic_types']
+                stats['specific_types'] += el['tables'][tab]['stats']['specific_types']
+                stats['filtered_types'] += el['tables'][tab]['stats']['filtered_types']
+                stats['found_perfect_types'] += el['tables'][tab]['stats']['found_perfect_types']
+                stats['tot_cols_with_types'] += el['tables'][tab]['stats']['tot_cols_with_types']
+                stats['count_single_domain'] += el['tables'][tab]['stats']['count_single_domain']
+                stats['count_multi_domain'] += el['tables'][tab]['stats']['count_multi_domain']
+
+                stats['mentions'] += sum(1 for row in entity_mat for cell in row if cell)
+                stats['nils'] += el['tables'][tab]['stats']['nils']
+                
 
                 entity_cells = set([cell for row in entity_mat for cell in row if cell.startswith('Q')])
                 all_entities = all_entities.union(entity_cells)
@@ -181,16 +209,29 @@ if CTA:
         write.writerows(CTA_target)
 
 ultimate_stats = {
-        'n_tables' : n_tables,
-        'cells' : cells,
-        'rows' : rows,
-        'cols' : cols,
-        'links' : links,
-        "mentions": mentions,
-        "nils": nils,
-        "types": types,
-        "col_types": col_types,
-        "col_types_perfect": col_types_perfect_n,
+        'n_tables' : stats['n_tables'],
+        'cells' : stats['cells'],
+        'rows' : stats['rows'],
+        'cols' : stats['cols'],
+        'tot_linked_cell' : stats['tot_linked_cell'],
+        "mentions": stats['mentions'],
+        "nils": stats['nils'],
+        "types_not_found": stats['types_not_found'],
+        "types_found": stats['types_found'],
+        "count_with_header": stats['count_with_header'],
+        "count_with_caption": stats['count_with_caption'],
+        "acro_added": stats['acro_added'],
+        "typos_added": stats['typos_added'],
+        "approx_added": stats['approx_added'],
+        "alias_added": stats['alias_added'],
+        "generic_types": stats['generic_types'],
+        "specific_types": stats['specific_types'],
+        "filtered_types": stats['filtered_types'],
+        "found_perfect_types": stats['found_perfect_types'],
+        "tot_cols_with_types": stats['tot_cols_with_types'],
+        "count_single_domain": stats['count_single_domain'],
+        "count_multi_domain": stats['count_multi_domain'],
+        
         "all_entities": len(all_entities) # entities
     }
 
