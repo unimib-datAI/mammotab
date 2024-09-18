@@ -40,7 +40,10 @@ def keygen():
 
 def clean_cell(string):
     string = str(string)  # Ensure the input is a string
-    soup = BeautifulSoup(string, 'html.parser')
+    try: # soup may throw errors if the string is not correctly encoded
+        soup = BeautifulSoup(string, 'html.parser')
+    except:
+        return ''
 
     # CE1 RULE Remove tags but keep their content
     for tag in soup(['sup', 'ref', 'span', 'sub', 'code', 'small', 'poem']):
