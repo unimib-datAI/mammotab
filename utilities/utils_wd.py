@@ -155,6 +155,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles,doprint=False):
             'count_multi_domain': 0
         }
         for row_id, line_link in enumerate(table_link):
+            print('entities_line start')
             entities_line = []
             types_line = []
             for col_id, cell_link in enumerate(line_link):
@@ -168,9 +169,11 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles,doprint=False):
                         if re.search('Q[0-9]+', cell_text):
                             # remove row
                             row_to_remove.add(row_id)
+                            continue
                         else:
                             entity = cell_link[3:]
                             entities_line.append(entity)
+                            print('1',entities_line)
                             local['entities_found']+=1
 
                             try:
@@ -184,6 +187,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles,doprint=False):
                         try:
                             entity = entities_diz[cell_link]
                             entities_line.append(entity)
+                            print('2',entities_line)
                             local['entities_found']+=1
 
                             try:
@@ -206,16 +210,19 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles,doprint=False):
                                     table_tags[str(col_id)] = {}
                                 table_tags[str(col_id)]['nil_present'] = True
                                 entities_line.append('NIL')
+                                print('3',entities_line)
                             else:
                                 local['entities_not_found']+=1
                                 #entities not in dictionary --> (possible nil?)
                                 entities_line.append('') 
+                                print('4',entities_line)
 
                             local['types_not_found']+=1
                             types_line.append([])
 
                 else:
                     entities_line.append('')
+                    print('5',entities_line)
                     types_line.append([])
 
                 local['tot_cells']+=1
