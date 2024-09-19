@@ -157,6 +157,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
         for row_id, line_link in enumerate(table_link):
             entities_line = []
             types_line = []
+            exited = False
             for col_id, cell_link in enumerate(line_link):
                 if cell_link:
                     #print(cell_text,cell_link)
@@ -168,6 +169,10 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
                         if re.search('Q[0-9]+', cell_text):
                             # remove row
                             row_to_remove.add(row_id)
+                            empty_line = [''] * len(line_link)
+                            entities_line.append(empty_line)
+                            exited = True
+                            break
                         else:
                             entity = cell_link[3:]
                             entities_line.append(entity)
@@ -219,7 +224,8 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
                     types_line.append([])
 
                 local['tot_cells']+=1
-
+            if exited:
+                continue
             diz['tables'][tab]['entity'].append(entities_line)
             diz['tables'][tab]['types'].append(types_line)
 
