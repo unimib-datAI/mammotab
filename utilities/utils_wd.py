@@ -98,7 +98,7 @@ def manage_generic_types(current,types,ctab):
                 if 'specific_types' not in ctab:
                     ctab['specific_types'] = True
 
-def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
+def mammotab_wiki(diz, entities_diz, types_diz, all_titles,doprint=False):
     filtered_types = set()
     current = {
         'tot_linked_cell': 0,
@@ -239,6 +239,8 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
         header_mat = np.array(diz['tables'][tab]['header'])
         link_mat = np.array(diz['tables'][tab]['link'])
         cells_mat = np.array(diz['tables'][tab]['cells'])
+        if doprint:
+            print('print',diz['tables'][tab]['entity'])
         entity_mat = np.array(diz['tables'][tab]['entity'])
 
         types_mat = np.array(diz['tables'][tab]['types'], dtype=object)

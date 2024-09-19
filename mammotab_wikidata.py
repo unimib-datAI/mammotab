@@ -111,7 +111,10 @@ for f_name in tqdm(os.listdir(folder_name)):
             diz = json.load(f)
             current = {}
             #main function to add wikidata info
-            diz,current = mammotab_wiki(diz, entities_diz, types_diz, all_titles)
+            if(i>4800):
+                diz,current = mammotab_wiki(diz, entities_diz, types_diz, all_titles, True)
+            else:
+                diz,current = mammotab_wiki(diz, entities_diz, types_diz, all_titles)
             for key in current:
                 if key in diz_info:
                     diz_info[key] += current[key]

@@ -1,0 +1,6 @@
+python mammotab_v3.py enwiki-20240720-pages-articles-multistream16.xml-p20460153p20570392.bz2
+python mammotab_filter.py wiki_tables enwiki-20240720-pages-articles-multistream16.xml-p20460153p20570392.bz2 wiki_tables_filtered
+python mammotab_entity_titles.py enwiki-20240720-pages-articles-multistream16.xml-p20460153p20570392.bz2
+python merge_title_dicts.py wiki_entities_titles
+python mammotab_wikidata.py wiki_tables_filtered enwiki-20240720-pages-articles-multistream16.xml-p20460153p20570392.bz2 wiki_tables_enriched
+python mammotab_semtab.py wiki_tables_enriched mammotab_dataset_semtab
