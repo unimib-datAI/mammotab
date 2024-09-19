@@ -112,6 +112,7 @@ for f_name in tqdm(os.listdir(folder_name)):
             current = {}
             #main function to add wikidata info
             if(i>4800):
+                print('f_name', f_name)
                 diz,current = mammotab_wiki(diz, entities_diz, types_diz, all_titles, True)
             else:
                 diz,current = mammotab_wiki(diz, entities_diz, types_diz, all_titles)
