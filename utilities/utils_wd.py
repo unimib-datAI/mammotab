@@ -98,7 +98,7 @@ def manage_generic_types(current,types,ctab):
                 if 'specific_types' not in ctab:
                     ctab['specific_types'] = True
 
-def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
+def mammotab_wiki(diz, entities_diz, types_diz, all_titles,doprint=False):
     filtered_types = set()
     current = {
         'tot_linked_cell': 0,
@@ -157,7 +157,6 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
         for row_id, line_link in enumerate(table_link):
             entities_line = []
             types_line = []
-            exited = False
             for col_id, cell_link in enumerate(line_link):
                 if cell_link:
                     #print(cell_text,cell_link)
@@ -170,8 +169,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
                             # remove row
                             row_to_remove.add(row_id)
                             empty_line = [''] * len(line_link)
-                            entities_line.append(empty_line)
-                            exited = True
+                            entities_line = empty_line
                             break
                         else:
                             entity = cell_link[3:]
@@ -224,8 +222,7 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
                     types_line.append([])
 
                 local['tot_cells']+=1
-            if exited:
-                continue
+
             diz['tables'][tab]['entity'].append(entities_line)
             diz['tables'][tab]['types'].append(types_line)
 
@@ -245,8 +242,8 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles):
         header_mat = np.array(diz['tables'][tab]['header'])
         link_mat = np.array(diz['tables'][tab]['link'])
         cells_mat = np.array(diz['tables'][tab]['cells'])
-        entity_mat = np.array(diz['tables'][tab]['entity'])
 
+        entity_mat = np.array(diz['tables'][tab]['entity'])
         types_mat = np.array(diz['tables'][tab]['types'], dtype=object)
 
         row_to_keep = set(range(text_mat.shape[0])) - row_to_remove
