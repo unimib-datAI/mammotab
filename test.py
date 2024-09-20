@@ -2,7 +2,7 @@ import gzip,json,pickle
 from utilities.utils_wd import mammotab_wiki
 from utilities.lamapi import call_lamapi
 
-filename = 'diz_51933926.json.gz'
+filename = 'diz_51991474.json.gz'
 
 with open('all_titles.pickle', 'rb') as fd:
     all_titles = pickle.load(fd)
