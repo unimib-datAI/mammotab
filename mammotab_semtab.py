@@ -94,7 +94,6 @@ for i in tqdm(diz_overall):
                 col_types_mat = el['tables'][tab]['col_types']
                 col_types_perfect_mat = el['tables'][tab]['col_type_perfect']
 
-                print(el['tables'][tab]['stats'])
                 stats['tot_linked_cell'] += el['tables'][tab]['stats']['tot_linked_cell']
                 stats['types_found'] += el['tables'][tab]['stats']['types_found']
                 stats['types_not_found'] += el['tables'][tab]['stats']['types_not_found']
