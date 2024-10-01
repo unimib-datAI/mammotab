@@ -271,6 +271,16 @@ if CTA:
 
 ultimate_stats = {
         'n_tables' : stats['n_tables'],
+        'max_rows' : stats['max_rows'],
+        'max_cols' : stats['max_cols'],
+        'min_rows' : stats['min_rows'],
+        'min_cols' : stats['min_cols'],
+        'ne_cols' : stats['ne_cols'],
+        'lit_cols' : stats['lit_cols'],
+        'cols_with_acronyms' : stats['cols_with_acronyms'],
+        'cols_with_typos' : stats['cols_with_typos'],
+        'cols_with_approx' : stats['cols_with_approx'],
+        'cols_with_aliases' : stats['cols_with_aliases'],
         'cells' : stats['cells'],
         'rows' : stats['rows'],
         'cols' : stats['cols'],
