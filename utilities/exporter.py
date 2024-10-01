@@ -39,18 +39,22 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'acronyms.json
     acronym_dict = json.load(f)
 def AddAcronyms(table):
     acro = 0
+    acrocols = []
     necols = GetNeColumns(table)
     for row in table['text']:
         for i,cell in enumerate(row):
             lcell = cell.lower()
             if str(i) in necols and lcell in acronym_dict:
                 if random.randint(1,100) <= ADDACRONIMSPERCENT:
+                    if i not in acrocols:
+                        acrocols.append(i)
                     cell = acronym_dict[lcell]
                     acro += 1
-    return table,acro
+    return table,acro,len(acrocols)
 
 def AddAliases(table):
     aliases_added = 0
+    aliasescols = []
     necols = GetNeColumns(table)
     necells = set()
     for col_index,row in enumerate(table['entity']):
@@ -66,22 +70,28 @@ def AddAliases(table):
             #if col_index in necols:
             if entity_cell in aliases:
                 if "en" in aliases[entity_cell]["aliases"] and random.randint(1,100) <= ADDALIASESPERCENT:
+                    if col_index not in aliasescols:
+                        aliasescols.append(col_index)
                     table['text'][col_index][cell_index] = random.choice(aliases[entity_cell]["aliases"]["en"])
                     aliases_added += 1
-    return table,aliases_added
+    return table,aliases_added,len(aliasescols)
 
 def AddTypos(table):
     typos_added = 0
+    typoscols = []
     necols = GetNeColumns(table)
     for row in table['text']:
         for i,cell in enumerate(row):
             if str(i) in necols and random.randint(1,100) <= ADDTYPOSPERCENT:
                 cell = add_random_typo(cell)
                 typos_added += 1
-    return table,typos_added
+                if i not in typoscols:
+                    typoscols.append(i)
+    return table,typos_added,len(typoscols)
 
 def ApproximateNumbers(table):
     approx = 0
+    approxcols = []
     litcols = GetLitColumns(table)
     if len(litcols) == 0:
         return table,approx
@@ -93,7 +103,9 @@ def ApproximateNumbers(table):
                 except:
                     continue
                 if random.randint(1,100) <= APPROXIMATENUMBERSPERCENT:
+                    if i not in approxcols:
+                        approxcols.append(i)
                     cell = str(float(cell) + random.randint(-1,1))
                     approx += 1
-    return table,approx
+    return table,approx,len(approxcols)
 

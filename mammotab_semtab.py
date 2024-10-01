@@ -24,6 +24,10 @@ stats = {
     'min_cols' : sys.maxsize,
     'ne_cols' : 0,
     'lit_cols' : 0,
+    'cols_with_acronyms': 0,
+    'cols_with_typos': 0,
+    'cols_with_approx': 0,
+    'cols_with_aliases': 0,
     'cells': 0,
     'rows': 0,
     'cols' : 0,
@@ -149,20 +153,28 @@ for i in tqdm(diz_overall):
                 
                 if ADDACRONIMS:
                     acro = 0
-                    diz['tables'][tab],acro = AddAcronyms(diz['tables'][tab])
+                    cols_with_acronyms = 0
+                    diz['tables'][tab],acro,cols_with_acronyms = AddAcronyms(diz['tables'][tab])
                     stats['acro_added'] += acro
+                    stats['cols_with_acronyms'] += cols_with_acronyms
                 if ADDTYPOS:
                     typo = 0
-                    diz['tables'][tab],typo = AddTypos(diz['tables'][tab])
+                    cols_with_typos = 0
+                    diz['tables'][tab],typo,cols_with_typos = AddTypos(diz['tables'][tab])
                     stats['typos_added'] += typo
+                    stats['cols_with_typos'] += cols_with_typos
                 if APPROXIMATENUMBERS:
                     approx=0
-                    diz['tables'][tab],approx = ApproximateNumbers(diz['tables'][tab])
+                    cols_with_approx = 0
+                    diz['tables'][tab],approx,cols_with_approx = ApproximateNumbers(diz['tables'][tab])
                     stats['approx_added'] += approx
+                    stats['cols_with_approx'] += cols_with_approx
                 if ADDALIASES:
                     alias = 0
-                    diz['tables'][tab],alias = AddAliases(diz['tables'][tab])
+                    cols_with_aliases = 0
+                    diz['tables'][tab],alias,cols_with_aliases = AddAliases(diz['tables'][tab])
                     stats['alias_added'] += alias
+                    stats['cols_with_aliases'] += cols_with_aliases
                 
 
                 entity_cells = set([cell for row in entity_mat for cell in row if cell.startswith('Q')])
