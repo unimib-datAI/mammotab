@@ -1,15 +1,6 @@
 import pickle,json,os,re
 import functools
 import numpy as np
-from utilities.exporter import AddAcronyms,AddAliases,AddTypos,ApproximateNumbers
-from dotenv import load_dotenv
-
-load_dotenv()
-
-ADDACRONIMS = bool(os.getenv('ADDACRONIMS'))
-ADDALIASES = bool(os.getenv('ADDALIASES'))
-ADDTYPOS = bool(os.getenv('ADDTYPOS'))
-APPROXIMATENUMBERS = bool(os.getenv('APPROXIMATENUMBERS'))
 
 base_threshold = 0.6
 with open('ontology_complete.pickle', 'rb') as fd:
@@ -278,22 +269,6 @@ def mammotab_wiki(diz, entities_diz, types_diz, all_titles,doprint=False):
         diz['tables'][tab]['entity'] = entity_mat.tolist()
         diz['tables'][tab]['types'] = types_mat.tolist()
 
-        if ADDACRONIMS:
-            acro = 0
-            diz['tables'][tab],acro = AddAcronyms(diz['tables'][tab])
-            local['acro_added'] += acro
-        if ADDTYPOS:
-            typo = 0
-            diz['tables'][tab],typo = AddTypos(diz['tables'][tab])
-            local['typos_added'] += typo
-        if APPROXIMATENUMBERS:
-            approx=0
-            diz['tables'][tab],approx = ApproximateNumbers(diz['tables'][tab])
-            local['approx_added'] += approx
-        if ADDALIASES:
-            alias = 0
-            diz['tables'][tab],alias = AddAliases(diz['tables'][tab])
-            local['alias_added'] += alias
         
         #accept father types of an annotation 
         diz['tables'][tab]['col_types'], diz['tables'][tab]['col_type_perfect'],\

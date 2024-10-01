@@ -6,9 +6,24 @@ import numpy as np
 import sys
 import csv
 from pprint import pprint
+from dotenv import load_dotenv
+from utilities.exporter import AddAcronyms,AddAliases,AddTypos,ApproximateNumbers
+
+load_dotenv()
+
+ADDACRONIMS = bool(os.getenv('ADDACRONIMS'))
+ADDALIASES = bool(os.getenv('ADDALIASES'))
+ADDTYPOS = bool(os.getenv('ADDTYPOS'))
+APPROXIMATENUMBERS = bool(os.getenv('APPROXIMATENUMBERS'))
 
 stats = {
     'n_tables': 0,
+    'max_rows' : 0, 
+    'max_cols' : 0,
+    'min_rows' : sys.maxsize,
+    'min_cols' : sys.maxsize,
+    'ne_cols' : 0,
+    'lit_cols' : 0,
     'cells': 0,
     'rows': 0,
     'cols' : 0,
@@ -82,11 +97,28 @@ for i in tqdm(diz_overall):
 
             if current_max >= min_links_number:
                 stats['n_tables'] += 1
-                stats['rows'] += len(el['tables'][tab]['text'])
-                stats['cols'] += len(el['tables'][tab]['text'][0])
+                rows = len(el['tables'][tab]['text'])
+                cols = len(el['tables'][tab]['text'][0])
+                ttags = el['tables'][tab]['tags']
+                stats['rows'] += rows
+                stats['cols'] += cols
                 stats['cells'] += len(el['tables'][tab]['text']) * len(el['tables'][tab]['text'][0])
+                if rows > stats['max_rows']:
+                    stats['max_rows'] = rows
+                if cols > stats['max_cols']:
+                    stats['max_cols'] = cols
+                if rows < stats['min_rows']:
+                    stats['min_rows'] = rows
+                if cols < stats['min_cols']:
+                    stats['min_cols'] = cols
 
-            
+                for col in ttags:
+                    if isinstance(ttags[col], dict) and 'tags' in ttags[col]:
+                        if ttags[col]['tags'].get('col_type') == 'LIT':
+                            stats['lit_cols'] += 1
+                        if ttags[col]['tags'].get('col_type') == 'NE':
+                            stats['ne_cols'] += 1
+
                 text_mat = el['tables'][tab]['text']
                 link_mat = el['tables'][tab]['link']
                 entity_mat = el['tables'][tab]['entity']
@@ -113,6 +145,24 @@ for i in tqdm(diz_overall):
 
                 stats['mentions'] += sum(1 for row in entity_mat for cell in row if cell)
                 stats['nils'] += el['tables'][tab]['stats']['nils']
+
+                
+                if ADDACRONIMS:
+                    acro = 0
+                    diz['tables'][tab],acro = AddAcronyms(diz['tables'][tab])
+                    stats['acro_added'] += acro
+                if ADDTYPOS:
+                    typo = 0
+                    diz['tables'][tab],typo = AddTypos(diz['tables'][tab])
+                    stats['typos_added'] += typo
+                if APPROXIMATENUMBERS:
+                    approx=0
+                    diz['tables'][tab],approx = ApproximateNumbers(diz['tables'][tab])
+                    stats['approx_added'] += approx
+                if ADDALIASES:
+                    alias = 0
+                    diz['tables'][tab],alias = AddAliases(diz['tables'][tab])
+                    stats['alias_added'] += alias
                 
 
                 entity_cells = set([cell for row in entity_mat for cell in row if cell.startswith('Q')])
