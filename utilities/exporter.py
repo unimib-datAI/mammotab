@@ -2,6 +2,13 @@ import random,json
 import os
 from typing import Set
 from utilities.lamapi import call_lamapi
+from dotenv import load_dotenv
+load_dotenv()
+
+ADDACRONIMSPERCENT = int(os.getenv('ADDACRONIMSPERCENT')) or 70
+ADDTYPOSPERCENT = int(os.getenv('ADDTYPOSPERCENT')) or 50
+APPROXIMATENUMBERSPERCENT = int(os.getenv('APPROXIMATENUMBERSPERCENT')) or 30
+ADDALIASESPERCENT = int(os.getenv('ADDALIASESPERCENT')) or 70
 
 def add_random_typo(text):
     if not text:
@@ -37,8 +44,9 @@ def AddAcronyms(table):
         for i,cell in enumerate(row):
             lcell = cell.lower()
             if str(i) in necols and lcell in acronym_dict:
-                cell = acronym_dict[lcell]
-                acro += 1
+                if random.randint(1,100) <= ADDACRONIMSPERCENT:
+                    cell = acronym_dict[lcell]
+                    acro += 1
     return table,acro
 
 def AddAliases(table):
@@ -57,7 +65,7 @@ def AddAliases(table):
             entity_cell = entity[cell_index]
             #if col_index in necols:
             if entity_cell in aliases:
-                if "en" in aliases[entity_cell]["aliases"]:
+                if "en" in aliases[entity_cell]["aliases"] and random.randint(1,100) <= ADDALIASESPERCENT:
                     table['text'][col_index][cell_index] = random.choice(aliases[entity_cell]["aliases"]["en"])
                     aliases_added += 1
     return table,aliases_added
@@ -67,7 +75,7 @@ def AddTypos(table):
     necols = GetNeColumns(table)
     for row in table['text']:
         for i,cell in enumerate(row):
-            if str(i) in necols:
+            if str(i) in necols and random.randint(1,100) <= ADDTYPOSPERCENT:
                 cell = add_random_typo(cell)
                 typos_added += 1
     return table,typos_added
@@ -84,7 +92,8 @@ def ApproximateNumbers(table):
                     float(cell)
                 except:
                     continue
-                cell = str(float(cell) + random.randint(-1,1))
-                approx += 1
+                if random.randint(1,100) <= APPROXIMATENUMBERSPERCENT:
+                    cell = str(float(cell) + random.randint(-1,1))
+                    approx += 1
     return table,approx
 
