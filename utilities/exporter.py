@@ -94,7 +94,7 @@ def ApproximateNumbers(table):
     approxcols = []
     litcols = GetLitColumns(table)
     if len(litcols) == 0:
-        return table,approx
+        return table,approx,0
     for row in table['text']:
         for i,cell in enumerate(row):
             if str(i) in litcols:
