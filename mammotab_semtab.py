@@ -55,13 +55,14 @@ base_folder = sys.argv[1]
 output_path = sys.argv[2]
 
 table_output_path = os.path.join(output_path, 'tables')
+json_output_path = os.path.join(output_path, 'json')
 gt_output_path = os.path.join(output_path, 'gt')
 target_output_path = os.path.join(output_path, 'target')
 
 os.makedirs(table_output_path, exist_ok=True)
 os.makedirs(gt_output_path, exist_ok=True)
 os.makedirs(target_output_path, exist_ok=True)
-
+os.makedirs(json_output_path, exist_ok=True)
 
 min_links_number = 3
 
@@ -71,7 +72,7 @@ i=0
 
 all_entities = set()
 
-print('1/4 Loading...')
+print('1/5 Loading...')
 for folder_name in tqdm(os.listdir(base_folder)):
     for f_name in os.listdir(os.path.join(base_folder, folder_name)):
         if 'diz_' in f_name:
@@ -81,7 +82,7 @@ for folder_name in tqdm(os.listdir(base_folder)):
                 i+=1
 
 # filter
-print('2/4 Filter...')
+print('2/5 Filter...')
 for i in tqdm(diz_overall):
     el = diz_overall[i]
     tables_to_keep = []
@@ -184,7 +185,7 @@ for i in tqdm(diz_overall):
 
     el['tables'] = {tabcode:table for tabcode, table in el['tables'].items() if tabcode in tables_to_keep}         
 
-print('3/4 CEA + tables')
+print('3/5 CEA + tables')
 for i in tqdm(diz_overall):
     el = diz_overall[i]
     for tab in el['tables']:
@@ -225,7 +226,7 @@ for i in tqdm(diz_overall):
 
 CTA = []
 
-print('4/4 CTA')
+print('4/5 CTA')
 for i in tqdm(diz_overall):
     el = diz_overall[i]
     for tab in el['tables']:
@@ -238,6 +239,14 @@ for i in tqdm(diz_overall):
                 cta_type = 'http://www.wikidata.org/entity/' + cta_type               
             cta_line = [tabcode,i, cta_type]
             CTA.append(cta_line)
+
+print('5/5 Exporting tables...')
+for i in tqdm(diz_overall):
+    el = diz_overall[i]
+    for tab in el['tables']:
+        with open(os.path.join(json_output_path, tab + '.json'), 'w') as f:
+            json.dump(el['tables'][tab], f, indent=4, ensure_ascii=False)
+print('Exporting tables...')
 
 # gt
 with open(os.path.join(gt_output_path, "CEA_mammotab_gt.csv"), "w", newline = '') as file:   

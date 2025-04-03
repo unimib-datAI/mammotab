@@ -5,10 +5,10 @@ from utilities.lamapi import call_lamapi
 from dotenv import load_dotenv
 load_dotenv()
 
-ADDACRONIMSPERCENT = int(os.getenv('ADDACRONIMSPERCENT')) or 70
-ADDTYPOSPERCENT = int(os.getenv('ADDTYPOSPERCENT')) or 50
-APPROXIMATENUMBERSPERCENT = int(os.getenv('APPROXIMATENUMBERSPERCENT')) or 30
-ADDALIASESPERCENT = int(os.getenv('ADDALIASESPERCENT')) or 70
+ADDACRONIMSPERCENT = int(os.getenv('ADDACRONIMSPERCENT') or 70)
+ADDTYPOSPERCENT = int(os.getenv('ADDTYPOSPERCENT') or 50)
+APPROXIMATENUMBERSPERCENT = int(os.getenv('APPROXIMATENUMBERSPERCENT') or 30)
+ADDALIASESPERCENT = int(os.getenv('ADDALIASESPERCENT') or 70)
 
 def add_random_typo(text):
     if not text:
