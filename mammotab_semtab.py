@@ -74,12 +74,19 @@ all_entities = set()
 
 print('1/5 Loading...')
 for folder_name in tqdm(os.listdir(base_folder)):
-    for f_name in os.listdir(os.path.join(base_folder, folder_name)):
-        if 'diz_' in f_name:
-            with gzip.open(os.path.join(base_folder, folder_name, f_name), 'rb') as f:
-                diz = json.load(f)
-                diz_overall[i] = diz
-                i+=1
+    folder_path = os.path.join(base_folder, folder_name)
+
+    if os.path.isdir(folder_path):
+        for f_name in os.listdir(os.path.join(folder_path)):
+            if 'diz_' in f_name:
+                try:
+                    with gzip.open(os.path.join(folder_path, f_name), 'rb') as f:
+                        diz = json.load(f)
+                        diz_overall[i] = diz
+                        i+=1
+                except Exception as e:
+                    print(f"Error loading {f_name}: {e}")
+                    continue
 
 # filter
 print('2/5 Filter...')
