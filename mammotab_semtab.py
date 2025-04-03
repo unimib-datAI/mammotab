@@ -241,7 +241,7 @@ def main():
                     file_paths.append(os.path.join(folder_path, f_name))
 
     # Setup multiprocessing
-    num_processes = mp.cpu_count()
+    num_processes = max(1, mp.cpu_count() // 2)
     print(f"Using {num_processes} processes")
 
     # Process files in parallel

@@ -1,5 +1,5 @@
 import random,json
-import os
+import os,time
 from typing import Set
 from utilities.lamapi import call_lamapi
 from dotenv import load_dotenv
@@ -62,6 +62,7 @@ def AddAliases(table):
             for col in row:
                 if col!='':
                     necells.add(col)
+    time.sleep(0.1)
     aliases = call_lamapi(list(necells), 'aliases')
     for col_index,col in enumerate(table['text']):
         entity = table['entity'][col_index]
