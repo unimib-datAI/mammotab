@@ -67,34 +67,16 @@ os.makedirs(json_output_path, exist_ok=True)
 min_links_number = 3
 
 CEA = []
+CTA = []
 diz_overall = {}
 i=0
 
 all_entities = set()
 
-print('1/5 Loading...')
-for folder_name in tqdm(os.listdir(base_folder)):
-    folder_path = os.path.join(base_folder, folder_name)
-
-    if os.path.isdir(folder_path):
-        for f_name in os.listdir(os.path.join(folder_path)):
-            if 'diz_' in f_name:
-                try:
-                    with gzip.open(os.path.join(folder_path, f_name), 'rb') as f:
-                        diz = json.load(f)
-                        diz_overall[i] = diz
-                        i+=1
-                except Exception as e:
-                    print(f"Error loading {f_name}: {e}")
-                    continue
-
-# filter
-
-for i in tqdm(diz_overall):
-    el = diz_overall[i]
+def process_tables(el, CEA, CTA, stats, all_entities, table_output_path, json_output_path):
     tables_to_keep = []
-    print('2/5 Filter...')
-    for tab in tqdm(el['tables']):
+
+    for tab in el['tables']:
 
         tabcode = tab
         len_header = len(el['tables'][tab]['header']) if el['tables'][tab].get('header') else 0
@@ -197,8 +179,7 @@ for i in tqdm(diz_overall):
 
     el['tables'] = {tabcode:table for tabcode, table in el['tables'].items() if tabcode in tables_to_keep} 
 
-    print('3/5 CEA + tables')
-    for tab in tqdm(el['tables']):
+    for tab in tables_to_keep:
         tabcode = tab
         len_header = len(el['tables'][tab]['header']) if el['tables'][tab].get('header') else 0
         table_txt = el['tables'][tab]['text'][len_header:]
@@ -232,12 +213,9 @@ for i in tqdm(diz_overall):
                         cea_entity = 'http://www.wikidata.org/entity/' + cea_entity
                     cea_line = [tabcode,row_indx,col_indx, cea_entity]
                     CEA.append(cea_line)
+       
 
-
-    CTA = []        
-
-    print('4/5 CTA')
-    for tab in tqdm(el['tables']):
+    for tab in tables_to_keep:
         tabcode = tab
         col_types_perfect = el['tables'][tab]['col_type_perfect']
 
@@ -248,10 +226,29 @@ for i in tqdm(diz_overall):
             cta_line = [tabcode,i, cta_type]
             CTA.append(cta_line)
 
-    print('5/5 Exporting tables...')
-    for tab in tqdm(el['tables']):
+    for tab in tables_to_keep:
         with open(os.path.join(json_output_path, tab + '.json'), 'w') as f:
             json.dump(el['tables'][tab], f, indent=4, ensure_ascii=False)
+
+
+for folder_name in tqdm(os.listdir(base_folder)):
+    folder_path = os.path.join(base_folder, folder_name)
+
+    if os.path.isdir(folder_path):
+        for f_name in tqdm(os.listdir(os.path.join(folder_path))):
+            if 'diz_' in f_name:
+                try:
+                    with gzip.open(os.path.join(folder_path, f_name), 'rb') as f:
+                        diz = json.load(f)
+                        process_tables(diz, CEA, CTA, stats, all_entities, 
+                                      table_output_path, json_output_path)
+                        i+=1
+                        del diz
+                except Exception as e:
+                    print(f"Error loading {f_name}: {e}")
+                    continue
+
+# filter
 
 print('Creating GT...')
 # gt
