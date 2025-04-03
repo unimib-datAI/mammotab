@@ -89,11 +89,12 @@ for folder_name in tqdm(os.listdir(base_folder)):
                     continue
 
 # filter
-print('2/5 Filter...')
+
 for i in tqdm(diz_overall):
     el = diz_overall[i]
     tables_to_keep = []
-    for tab in el['tables']:
+    print('2/5 Filter...')
+    for tab in tqdm(el['tables']):
 
         tabcode = tab
         len_header = len(el['tables'][tab]['header']) if el['tables'][tab].get('header') else 0
@@ -158,31 +159,35 @@ for i in tqdm(diz_overall):
                 stats['mentions'] += sum(1 for row in entity_mat for cell in row if cell)
                 stats['nils'] += el['tables'][tab]['stats']['nils']
 
-                
                 if ADDACRONIMS:
                     acro = 0
                     cols_with_acronyms = 0
                     el['tables'][tab],acro,cols_with_acronyms = AddAcronyms(el['tables'][tab])
+                    
                     stats['acro_added'] += acro
                     stats['cols_with_acronyms'] += cols_with_acronyms
+                    el['tables'][tab]['stats']['acro_added'] = acro
                 if ADDTYPOS:
                     typo = 0
                     cols_with_typos = 0
                     el['tables'][tab],typo,cols_with_typos = AddTypos(el['tables'][tab])
                     stats['typos_added'] += typo
                     stats['cols_with_typos'] += cols_with_typos
+                    el['tables'][tab]['stats']['typos_added'] = typo
                 if APPROXIMATENUMBERS:
                     approx=0
                     cols_with_approx = 0
                     el['tables'][tab],approx,cols_with_approx = ApproximateNumbers(el['tables'][tab])
                     stats['approx_added'] += approx
                     stats['cols_with_approx'] += cols_with_approx
+                    el['tables'][tab]['stats']['approx_added'] = approx
                 if ADDALIASES:
                     alias = 0
                     cols_with_aliases = 0
                     el['tables'][tab],alias,cols_with_aliases = AddAliases(el['tables'][tab])
                     stats['alias_added'] += alias
                     stats['cols_with_aliases'] += cols_with_aliases
+                    el['tables'][tab]['stats']['alias_added'] = alias
                 
 
                 entity_cells = set([cell for row in entity_mat for cell in row if cell.startswith('Q')])
@@ -190,12 +195,10 @@ for i in tqdm(diz_overall):
 
                 tables_to_keep.append(tabcode)
 
-    el['tables'] = {tabcode:table for tabcode, table in el['tables'].items() if tabcode in tables_to_keep}         
+    el['tables'] = {tabcode:table for tabcode, table in el['tables'].items() if tabcode in tables_to_keep} 
 
-print('3/5 CEA + tables')
-for i in tqdm(diz_overall):
-    el = diz_overall[i]
-    for tab in el['tables']:
+    print('3/5 CEA + tables')
+    for tab in tqdm(el['tables']):
         tabcode = tab
         len_header = len(el['tables'][tab]['header']) if el['tables'][tab].get('header') else 0
         table_txt = el['tables'][tab]['text'][len_header:]
@@ -231,12 +234,10 @@ for i in tqdm(diz_overall):
                     CEA.append(cea_line)
 
 
-CTA = []
+    CTA = []        
 
-print('4/5 CTA')
-for i in tqdm(diz_overall):
-    el = diz_overall[i]
-    for tab in el['tables']:
+    print('4/5 CTA')
+    for tab in tqdm(el['tables']):
         tabcode = tab
         col_types_perfect = el['tables'][tab]['col_type_perfect']
 
@@ -247,14 +248,12 @@ for i in tqdm(diz_overall):
             cta_line = [tabcode,i, cta_type]
             CTA.append(cta_line)
 
-print('5/5 Exporting tables...')
-for i in tqdm(diz_overall):
-    el = diz_overall[i]
-    for tab in el['tables']:
+    print('5/5 Exporting tables...')
+    for tab in tqdm(el['tables']):
         with open(os.path.join(json_output_path, tab + '.json'), 'w') as f:
             json.dump(el['tables'][tab], f, indent=4, ensure_ascii=False)
-print('Exporting tables...')
 
+print('Creating GT...')
 # gt
 with open(os.path.join(gt_output_path, "CEA_mammotab_gt.csv"), "w", newline = '') as file:   
     write = csv.writer(file)
